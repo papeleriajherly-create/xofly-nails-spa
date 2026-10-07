@@ -1,13 +1,9 @@
-# Xofly Nails & Spa — Panel conectado a Supabase
+# Xofly Nails & Spa — precios administrables V2
 
-Incluye la página Premium V4 conservada, panel `admin.html` y `config.js` con la URL y la clave pública de Supabase.
+1. En Supabase → SQL Editor → New query, ejecuta el archivo `IMPORTAR_PRECIOS.sql` para importar 24 precios y paquetes sin sobrescribir los existentes.
+2. En GitHub, reemplaza `index.html` y `admin.html` con los de este ZIP. Conserva `config.js` (incluido). No subas el SQL ni el ZIP a la web; el SQL se ejecuta en Supabase.
+3. Espera el despliegue automático de Vercel.
+4. Abre `/admin.html`, edita un registro de categoría `Catálogo · ...` y comprueba el cambio en la sección Lista de precios.
+5. Los servicios originales permanecen visibles como respaldo hasta que Supabase devuelva registros del catálogo. Los registros de prueba de categoría `General` no se incluyen en la lista de precios administrable.
 
-## Publicar
-1. Extrae el ZIP.
-2. En el repositorio GitHub `xofly-nails-spa`, reemplaza `index.html` y sube `admin.html` y `config.js` a la raíz. No subas el ZIP directamente.
-3. Espera el despliegue automático en Vercel.
-4. Abre `https://xofly-nails-spa.vercel.app/admin.html` e inicia sesión con el usuario autorizado en Supabase.
-5. Agrega un servicio o promoción de prueba y comprueba que aparezca en la sección Novedades de la web pública.
-
-## Alcance
-El panel gestiona registros nuevos de servicios/precios y promociones; **el catálogo y las imágenes originales de la página siguen siendo estáticos**. La tabla `xofly_gallery` y `xofly_settings` todavía no tienen editor. La disponibilidad de citas sigue confirmándose por WhatsApp. No subir contraseñas ni claves `sb_secret_` al repositorio.
+**Atención:** la página conserva el diseño original y las demás secciones; los precios que aparezcan en otras imágenes o textos estáticos no se actualizan automáticamente. Revisa que los precios originales sean correctos.
