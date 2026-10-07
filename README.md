@@ -1,16 +1,13 @@
-# Xofly Nails & Spa — sitio web Premium V4
+# Xofly Nails & Spa — Panel conectado a Supabase
 
-## Publicar en Vercel
-1. Extrae este ZIP.
-2. Sube `index.html` a un repositorio de GitHub.
-3. En Vercel selecciona **Add New > Project**, importa el repositorio y usa Framework Preset: **Other**.
-4. Deja Build Command vacío y publica. Es un sitio estático; no requiere npm ni servidor.
+Incluye la página Premium V4 conservada, panel `admin.html` y `config.js` con la URL y la clave pública de Supabase.
 
-## Contenido
-- `index.html`: sitio completo, con fotografías incrustadas y botones de WhatsApp.
-- No hay reservas automáticas: el negocio confirma disponibilidad por WhatsApp.
-- El emblema del encabezado es provisional, no el logotipo original.
-- Revisa los precios, horarios y condiciones con el negocio antes de publicar.
+## Publicar
+1. Extrae el ZIP.
+2. En el repositorio GitHub `xofly-nails-spa`, reemplaza `index.html` y sube `admin.html` y `config.js` a la raíz. No subas el ZIP directamente.
+3. Espera el despliegue automático en Vercel.
+4. Abre `https://xofly-nails-spa.vercel.app/admin.html` e inicia sesión con el usuario autorizado en Supabase.
+5. Agrega un servicio o promoción de prueba y comprueba que aparezca en la sección Novedades de la web pública.
 
-## Cambios posteriores
-Edita `index.html` y vuelve a subir los cambios a GitHub; Vercel puede desplegarlos automáticamente.
+## Alcance
+El panel gestiona registros nuevos de servicios/precios y promociones; **el catálogo y las imágenes originales de la página siguen siendo estáticos**. La tabla `xofly_gallery` y `xofly_settings` todavía no tienen editor. La disponibilidad de citas sigue confirmándose por WhatsApp. No subir contraseñas ni claves `sb_secret_` al repositorio.
