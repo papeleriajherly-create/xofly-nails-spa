@@ -229,9 +229,9 @@ footer{background:#031d4a;color:#d9ecff;padding:38px 0;text-align:center}
       <div class="field"><label>Nombre</label><input id="clientName" placeholder="Tu nombre"></div>
       <div class="field"><label>Teléfono</label><input id="clientPhone" inputmode="tel" placeholder="Ej. 962 123 4567"></div>
       <div class="field"><label>Fecha preferida</label><input id="preferredDate" type="date"></div>
-      <div class="field"><label>Hora preferida</label><select id="preferredTime"><option value="">Selecciona una hora</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option><option>6:00 PM</option></select></div>
+      <div class="field"><label>Hora preferida</label><select id="preferredTime"><option value="">Selecciona una hora</option></select></div>
       <div class="field"><label>Comentario (opcional)</label><input id="clientNote" placeholder="Ej. primera cita, tratamiento facial..."></div>
-      <button class="btn btn-wa" id="bookBtn">💬 Enviar solicitud por WhatsApp</button><p style="font-size:.86rem;color:var(--muted);margin:10px 0 0">La solicitud no confirma la cita hasta recibir respuesta por WhatsApp.</p>
+      <button class="btn btn-wa" id="bookBtn">💬 Enviar solicitud por WhatsApp</button><p style="font-size:.86rem;color:var(--muted);margin:10px 0 0">El horario se aparta al reservar y queda pendiente de confirmación del negocio por WhatsApp.</p>
       <div class="deposit"><strong>Anticipo $150</strong><br>Sin reembolso y se descuenta al finalizar el servicio.</div>
     </div>
     <div class="info-box">
@@ -297,28 +297,8 @@ const select=document.getElementById('serviceSelect');
 document.querySelectorAll('.service-line').forEach(btn=>btn.addEventListener('click',()=>{
   select.value=btn.dataset.service;document.getElementById('citas').scrollIntoView({behavior:'smooth'});
 }));
-document.getElementById('bookBtn').addEventListener('click',()=>{
-  const s=select.value;
-  if(!s){select.focus();alert('Selecciona un servicio para solicitar tu cita.');return;}
-  const n=document.getElementById('clientName').value.trim();
-  if(!n){document.getElementById('clientName').focus();alert('Escribe tu nombre para solicitar la cita.');return;}
-  const p=document.getElementById('clientPhone').value.trim();
-  const d=document.getElementById('preferredDate').value;
-  if(!d){document.getElementById('preferredDate').focus();alert('Selecciona la fecha que prefieres.');return;}
-  const t=document.getElementById('preferredTime').value;
-  if(!t){document.getElementById('preferredTime').focus();alert('Selecciona una hora preferida.');return;}
-  const note=document.getElementById('clientNote').value.trim();
-  const day=new Date(d+'T12:00:00').getDay();
-  if(day===0){alert('Los domingos no aparecen en el horario de atención. Selecciona otra fecha.');return;}
-  let msg=`Hola Xofly Nails & Spa, quiero solicitar una cita.\n\n💙 Servicio: ${s}`;
-  if(n) msg+=`\n👤 Nombre: ${n}`;
-  if(p) msg+=`\n📱 Teléfono: ${p}`;
-  if(d) msg+=`\n📅 Fecha preferida: ${d}`;
-  if(t) msg+=`\n🕐 Hora preferida: ${t}`;
-  if(note) msg+=`\n📝 Comentario: ${note}`;
-  msg+='\n\nEntiendo que el anticipo es de $150, sin reembolso y se descuenta al finalizar el servicio. ¿Me confirman disponibilidad?';
-  window.open('https://wa.me/529621174985?text='+encodeURIComponent(msg),'_blank');
-});
+// Reserva controlada por Supabase: código en el módulo de citas V3.
+
 
 document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
 const modal=document.getElementById('modal'),modalImg=document.getElementById('modalImg');
@@ -395,6 +375,67 @@ if(url&&key){
    row.append(label,price);target.append(row);
   }
  }catch(err){console.warn('Se muestran los precios originales mientras se restablece la conexión.',err)}
+})();
+</script>
+<style>
+#preferredTime option:disabled{color:#a54b48;background:#f5e6e6}#bookingStatus{font-size:.92rem;color:#174b77;margin-top:10px}
+</style>
+<script>
+(()=>{
+const url=window.XOFLY_SUPABASE_URL,key=window.XOFLY_SUPABASE_ANON_KEY;
+const date=document.getElementById('preferredDate'),time=document.getElementById('preferredTime'),btn=document.getElementById('bookBtn');
+const info=document.createElement('p');info.id='bookingStatus';time.after(info);
+const zone='America/Mexico_City';
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const localClock=()=>new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+const weekday=d=>new Date(d+'T12:00:00Z').getUTCDay();
+const label=h=>{const n=Number(h);return (n%12||12)+':00 '+(n>=12?'PM':'AM')};
+const headers={'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'};
+async function refresh(){
+ time.replaceChildren(new Option('Selecciona una hora',''));btn.disabled=true;
+ if(!url||!key){info.textContent='Configuración de reservas pendiente. Comunícate por WhatsApp.';return}
+ if(!date.value){info.textContent='Selecciona primero una fecha.';return}
+ const d=date.value,day=weekday(d);
+ if(d<today()||day===0){info.textContent='Fecha no disponible. No atendemos domingos.';return}
+ info.textContent='Consultando horarios disponibles…';
+ try{
+  const r=await fetch(url+'/rest/v1/rpc/xofly_busy_slots',{method:'POST',headers,body:JSON.stringify({p_date:d}),cache:'no-store'});
+  if(!r.ok)throw Error('No se pudo consultar la disponibilidad');
+  const busy=new Set((await r.json()).map(x=>x.slot.slice(0,5)));
+  let free=0;
+  for(let hour=(day===6?10:13);hour<(day===6?15:18);hour++){
+   const value=String(hour).padStart(2,'0')+':00';
+   const past=d===today()&&value<=localClock();const occupied=busy.has(value);
+   const opt=new Option(label(hour)+(occupied?' — Ocupado':past?' — No disponible':' — Disponible'),value);
+   opt.disabled=occupied||past;time.add(opt);if(!opt.disabled)free++;
+  }
+  info.textContent=free?`${free} horario(s) disponible(s). Las citas duran 60 minutos.`:'No quedan horarios disponibles en esta fecha.';
+  btn.disabled=!free;
+ }catch(e){info.textContent='No se pudo comprobar la disponibilidad. Intenta de nuevo.';btn.disabled=true}
+}
+date.addEventListener('change',refresh);
+const oldDate=date.min;date.min=today();
+btn.addEventListener('click',async()=>{
+ const service=document.getElementById('serviceSelect').value;
+ const name=document.getElementById('clientName').value.trim();
+ const phone=document.getElementById('clientPhone').value.trim();
+ const note=document.getElementById('clientNote').value.trim();
+ if(!service||name.length<2||phone.length<7||!date.value||!time.value){alert('Completa servicio, nombre, teléfono, fecha y horario disponible.');return}
+ if(!url||!key){alert('Reservas temporalmente no disponibles.');return}
+ btn.disabled=true;info.textContent='Apartando horario…';
+ try{
+  const r=await fetch(url+'/rest/v1/rpc/xofly_book_slot',{method:'POST',headers,body:JSON.stringify({p_date:date.value,p_time:time.value,p_name:name,p_phone:phone,p_service:service,p_notes:note}),cache:'no-store'});
+  if(!r.ok){const error=await r.json().catch(()=>({}));throw Error(error.message||'No se pudo reservar')}
+  const id=await r.json();
+  const msg=`Hola Xofly Nails & Spa, acabo de apartar una cita pendiente de confirmación.\nFolio: ${id}\nServicio: ${service}\nNombre: ${name}\nTeléfono: ${phone}\nFecha: ${date.value}\nHora: ${time.options[time.selectedIndex].text.split(' — ')[0]}\nComentarios: ${note}\nEntiendo que el anticipo es de $150 y se descuenta del servicio. ¿Me confirman mi cita?`;
+  info.textContent='¡Horario apartado! Folio: '+id+'. Envía el mensaje de WhatsApp para coordinar la confirmación.';
+  const link='https://wa.me/529621174985?text='+encodeURIComponent(msg);
+  const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Abrir WhatsApp para confirmar';a.className='btn btn-wa';info.after(a);
+  window.open(link,'_blank','noopener');
+  await refresh();
+ }catch(e){info.textContent=e.message;await refresh();alert(e.message)}finally{btn.disabled=false}
+});
+refresh();setInterval(()=>{if(date.value)refresh()},60000);
 })();
 </script>
 </body></html>
