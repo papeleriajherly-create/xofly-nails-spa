@@ -21,7 +21,42 @@ function renderList(rows,target){$(target).replaceChildren();if(!rows.length){$(
 function filterServices(){renderList(services.filter(x=>!$('filter').value||categoryOf(x)===$('filter').value),'services')}$('filter').onchange=filterServices;
 async function refresh(){const [s,p]=await Promise.all([request('/rest/v1/xofly_services?select=*&order=created_at.desc'),request('/rest/v1/xofly_promotions?select=*&order=created_at.desc')]);services=s;filterServices();renderList(p,'promos')}
 $('editor').onsubmit=async e=>{e.preventDefault();if(!token)return;const table=editKind||$('kind').value;const body={description:$('description').value.trim(),image_url:$('image_url').value.trim()||null,active:$('active').checked};if(table==='xofly_services'){body.name=$('title').value.trim();body.category=$('category').value;body.price=$('price').value===''?null:Number($('price').value)}else{body.title=$('title').value.trim()};if(body.image_url&&!body.image_url.startsWith('https://'))return notice('La imagen debe usar HTTPS');try{await request('/rest/v1/'+table+(editId?'?id=eq.'+encodeURIComponent(editId):''),{method:editId?'PATCH':'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)});clearForm();notice('Cambios guardados en Supabase');await refresh()}catch(e){notice('No se pudo guardar: '+e.message)}};
-async function loadAppointments(){if(!token)return;const list=$('appointmentList');list.textContent='Cargando…';try{const rows=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc');list.replaceChildren();if(!rows.length){list.textContent='No hay citas registradas';return}for(const x of rows){const el=document.createElement('div');el.className='item';const p=document.createElement('p');p.textContent=`${x.appointment_date} ${String(x.appointment_time).slice(0,5)} | ${x.client_name} | ${x.client_phone} | ${x.service} | ${x.status}`;el.append(p);if(x.status!=='cancelled'){for(const [status,label] of [['confirmed','Confirmar'],['cancelled','Cancelar / liberar horario']]){const b=document.createElement('button');b.textContent=label;b.className=status==='cancelled'?'danger':'';b.onclick=async()=>{if(!confirm('¿Cambiar esta cita a '+status+'?'))return;try{await request('/rest/v1/xofly_appointments?id=eq.'+encodeURIComponent(x.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({status})});await loadAppointments()}catch(e){notice('Error en cita: '+e.message)}};el.append(b)}}list.append(el)}}catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}}
+const appointmentStatusLabel={pending:'Pendiente',confirmed:'Confirmada',cancelled:'Cancelada'};
+const appointmentDateLabel=value=>{const parts=String(value||'').split('-').map(Number);if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return String(value||'');return new Intl.DateTimeFormat('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(parts[0],parts[1]-1,parts[2])))};
+async function loadAppointments(){
+ if(!token)return;
+ const list=$('appointmentList');list.textContent='Cargando…';
+ try{
+  const rows=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc');
+  list.replaceChildren();if(!rows.length){list.textContent='No hay citas registradas';return}
+  for(const x of rows){
+   const el=document.createElement('div');el.className='item';
+   const p=document.createElement('p');
+   p.textContent=`${appointmentDateLabel(x.appointment_date)} · ${String(x.appointment_time).slice(0,5)} | ${x.client_name} | ${x.client_phone} | ${x.service} | ${appointmentStatusLabel[x.status]||x.status}`;
+   el.append(p);
+   const actions=x.status==='pending'?[['confirmed','Confirmar cita'],['cancelled','Cancelar / liberar horario']]:x.status==='confirmed'?[['cancelled','Cancelar / liberar horario']]:[];
+   for(const [status,label] of actions){
+    const b=document.createElement('button');b.type='button';b.textContent=label;b.className=status==='cancelled'?'danger':'';
+    b.onclick=async()=>{
+     if(!confirm(status==='confirmed'?'¿Confirmar esta cita?':'¿Cancelar esta cita y liberar su horario?'))return;
+     b.disabled=true;
+     try{
+      const updated=await request('/rest/v1/xofly_appointments?id=eq.'+encodeURIComponent(x.id)+'&status=eq.'+encodeURIComponent(x.status)+'&select=id,status',{
+       method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({status})
+      });
+      if(!Array.isArray(updated)||updated.length!==1||updated[0].status!==status){
+       throw Error('Supabase no actualizó la cita. Revisa los permisos UPDATE/RLS de xofly_appointments y vuelve a intentarlo.');
+      }
+      notice(status==='confirmed'?'Cita confirmada correctamente.':'Cita cancelada y horario liberado.');
+      await loadAppointments();
+     }catch(e){notice('Error al cambiar el estado: '+e.message);b.disabled=false}
+    };
+    el.append(b);
+   }
+   list.append(el);
+  }
+ }catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}
+}
 $('reloadAppointments').onclick=loadAppointments;
 })();
 </script></body></html>
