@@ -17,6 +17,11 @@
 .agenda-slot{background:#e8f7f2;color:#176245;border-radius:8px;padding:6px 9px;font-size:.82rem;font-weight:700}
 .agenda-empty{color:#60718c;font-size:.9rem}
 @media(max-width:700px){.agenda-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.agenda-layout{grid-template-columns:1fr}}
+
+.xofly-formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.xofly-formgrid label{margin:0}.xofly-section{border:1px solid #dceaf5;border-radius:14px;padding:16px;margin:14px 0;background:#fafdff}
+.xofly-result{padding:10px;border-top:1px solid #e2ebf3}.xofly-result p{margin:5px 0}
+@media(max-width:700px){.xofly-formgrid{grid-template-columns:1fr}}
 </style></head><body><div class="wrap"><h1>🦋 Panel Xofly Nails & Spa</h1><p>Administra servicios, paquetes, precios, imágenes y citas. Los cambios se guardan en Supabase.</p><a href="/">← Ver página pública</a><p id="msg" role="status"></p>
 <section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input type="email" id="email" required autocomplete="username"></label><label>Contraseña<input type="password" id="password" required autocomplete="current-password"></label><button>Entrar</button></form></section>
 <div id="panel" hidden><button id="logout" class="secondary">Cerrar sesión</button>
@@ -24,6 +29,35 @@
 <section><h2>Servicios y precios</h2><label>Filtrar por categoría<select id="filter"><option value="">Todas</option><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label><div id="services"></div></section>
 <section><h2>Promociones</h2><div id="promos"></div></section>
 
+
+<section><h2>🗓️ Agendar cliente directamente</h2><p class="hint">Para citas solicitadas por WhatsApp, teléfono o en persona. Al guardar se registra como confirmada y ocupa el horario.</p>
+<form id="manualBooking"><div class="xofly-formgrid">
+<label>Nombre completo<input id="manualName" required maxlength="160" autocomplete="name"></label>
+<label>Teléfono (10 dígitos)<input id="manualPhone" required inputmode="tel" pattern="[0-9 +()-]{10,20}" maxlength="20"></label>
+<label>Tratamiento<input id="manualService" required maxlength="140" list="manualServiceOptions"></label>
+<label>Fecha<input id="manualDate" type="date" required></label>
+<label>Hora de llegada<select id="manualTime" required></select></label>
+<label>Notas de la cita (opcional)<input id="manualNotes" maxlength="500"></label>
+</div><datalist id="manualServiceOptions"></datalist>
+<button type="submit">Guardar cita confirmada</button><p id="manualBookingStatus" role="status"></p></form>
+</section>
+<section><h2>👤 Expedientes y tratamientos</h2>
+<div class="xofly-section"><h3>Registrar cliente</h3><form id="clientForm"><div class="xofly-formgrid">
+<label>Nombre completo<input id="clientName" required maxlength="160"></label>
+<label>Teléfono<input id="clientPhone" required inputmode="tel" maxlength="20"></label></div>
+<label>Observaciones administrativas (opcional)<textarea id="clientNotes" rows="2" maxlength="1000"></textarea></label>
+<button>Guardar cliente</button></form></div>
+<div class="xofly-section"><h3>Buscar expediente</h3><label>Nombre o teléfono<input id="clientLookup" type="search" placeholder="Buscar cliente..."></label><div id="clientResults"></div></div>
+<div class="xofly-section"><h3>Registrar tratamiento</h3><form id="treatmentForm">
+<label>Cliente<select id="treatmentClient" required></select></label>
+<div class="xofly-formgrid"><label>Tratamiento<input id="treatmentName" required maxlength="160"></label>
+<label>Sesiones totales<input id="treatmentTotal" type="number" min="1" max="1000" value="1" required></label>
+<label>Sesiones realizadas<input id="treatmentDone" type="number" min="0" value="0" required></label>
+<label>Precio total (MXN)<input id="treatmentPrice" type="number" min="0" step="0.01" value="0" required></label></div>
+<label>Observaciones del tratamiento<textarea id="treatmentNotes" rows="2" maxlength="1000"></textarea></label>
+<button>Registrar tratamiento</button></form></div>
+<div class="xofly-section"><h3>Seguimiento y pagos</h3><div id="treatmentRecords"></div></div>
+</section>
 <section id="agendaDashboard"><h2>📊 Control de agenda</h2>
 <p class="hint">Resumen de citas y recordatorios manuales por WhatsApp. Los datos se consultan en Supabase.</p>
 <div class="agenda-summary">
@@ -50,14 +84,89 @@ async function request(path,opts={}){const r=await fetch(url+path,{...opts,heade
 const categoryOf=x=>{const c=String(x.category||'').toLowerCase(),n=String(x.name||'').toLowerCase(),all=c+' '+n;if(/manos|manicure|uñas|acrílic|gel semipermanente|press on/.test(all))return 'Manos';if(/podolog|quiropod|pie|onicom|onicocr|ortonix|callos/.test(all))return 'Podología';if(c.includes('catálogo')||/facial|corporal|masaje|drenaje|auriculo|aparatolog/.test(all))return 'Facial y corporal';return x.category||'General'};
 function clearForm() {editId=null;editKind=null;$('editor').reset();$('category').value='Facial y corporal';$('formTitle').textContent='Agregar servicio o promoción'}
 $('cancel').onclick=clearForm;
-$('loginForm').onsubmit=async e=>{e.preventDefault();try{const x=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('email').value,password:$('password').value})});token=x.access_token;const admins=await request('/rest/v1/xofly_admins?select=user_id&user_id=eq.'+encodeURIComponent(x.user.id));if(!admins?.length){token='';throw Error('La cuenta no tiene permisos de administrador')} $('login').hidden=true;$('panel').hidden=false;notice('Sesión iniciada');await refresh();await loadAppointments()}catch(err){token='';notice('No se pudo iniciar sesión: '+err.message)}};
+$('loginForm').onsubmit=async e=>{e.preventDefault();try{const x=await request('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:$('email').value,password:$('password').value})});token=x.access_token;const admins=await request('/rest/v1/xofly_admins?select=user_id&user_id=eq.'+encodeURIComponent(x.user.id));if(!admins?.length){token='';throw Error('La cuenta no tiene permisos de administrador')} $('login').hidden=true;$('panel').hidden=false;notice('Sesión iniciada');await refresh();await loadAppointments();await xoflyLoadRecords()}catch(err){token='';notice('No se pudo iniciar sesión: '+err.message)}};
 $('logout').onclick=()=>{token='';$('password').value='';$('panel').hidden=true;$('login').hidden=false;$('appointmentList').replaceChildren();appointmentsCache=[];$('agendaUpcoming').replaceChildren();$('agendaSlots').replaceChildren();$('agendaHistory').replaceChildren();clearForm();notice('Sesión cerrada')};
 function renderList(rows,target){$(target).replaceChildren();if(!rows.length){$(target).textContent='Sin registros';return}for(const x of rows){const el=document.createElement('div');el.className='item';const price=x.price==null?'Consultar':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(x.price);el.innerHTML=`<b>${esc(x.name||x.title)}</b> — ${esc(price)} <span class="pill">${esc(categoryOf(x))}</span> <small>${x.active?'Visible':'Oculto'}</small><p>${esc(x.description)}</p>`;if(x.image_url&&/^https:\/\//.test(x.image_url)){const img=document.createElement('img');img.className='thumb';img.src=x.image_url;img.alt='Imagen del tratamiento';img.loading='lazy';el.append(img)}const edit=document.createElement('button');edit.textContent='Editar';edit.onclick=()=>{editId=x.id;editKind=target==='services'?'xofly_services':'xofly_promotions';$('kind').value=editKind;$('title').value=x.name||x.title||'';$('description').value=x.description||'';$('image_url').value=x.image_url||'';$('price').value=x.price??'';$('category').value=['Facial y corporal','Manos','Podología','General'].includes(categoryOf(x))?categoryOf(x):'General';$('active').checked=x.active;$('formTitle').textContent='Editar contenido';window.scrollTo({top:0,behavior:'smooth'})};const del=document.createElement('button');del.textContent='Eliminar';del.className='danger';del.onclick=async()=>{if(!confirm('¿Eliminar definitivamente este registro?'))return;try{await request('/rest/v1/'+(target==='services'?'xofly_services':'xofly_promotions')+'?id=eq.'+encodeURIComponent(x.id),{method:'DELETE'});notice('Registro eliminado');await refresh()}catch(e){notice('Error: '+e.message)}};el.append(edit,del);$(target).append(el)}}
 function filterServices(){renderList(services.filter(x=>!$('filter').value||categoryOf(x)===$('filter').value),'services')}$('filter').onchange=filterServices;
-async function refresh(){const [s,p]=await Promise.all([request('/rest/v1/xofly_services?select=*&order=created_at.desc'),request('/rest/v1/xofly_promotions?select=*&order=created_at.desc')]);services=s;filterServices();renderList(p,'promos')}
+async function refresh(){const [s,p]=await Promise.all([request('/rest/v1/xofly_services?select=*&order=created_at.desc'),request('/rest/v1/xofly_promotions?select=*&order=created_at.desc')]);services=s;filterServices();renderList(p,'promos');const options=$('manualServiceOptions');options.replaceChildren();for(const item of services){const opt=document.createElement('option');opt.value=item.name;options.append(opt)}}
 $('editor').onsubmit=async e=>{e.preventDefault();if(!token)return;const table=editKind||$('kind').value;const body={description:$('description').value.trim(),image_url:$('image_url').value.trim()||null,active:$('active').checked};if(table==='xofly_services'){body.name=$('title').value.trim();body.category=$('category').value;body.price=$('price').value===''?null:Number($('price').value)}else{body.title=$('title').value.trim()};if(body.image_url&&!body.image_url.startsWith('https://'))return notice('La imagen debe usar HTTPS');try{await request('/rest/v1/'+table+(editId?'?id=eq.'+encodeURIComponent(editId):''),{method:editId?'PATCH':'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)});clearForm();notice('Cambios guardados en Supabase');await refresh()}catch(e){notice('No se pudo guardar: '+e.message)}};
 const appointmentStatusLabel={pending:'Pendiente',confirmed:'Confirmada',cancelled:'Cancelada'};
 const appointmentDateLabel=value=>{const parts=String(value||'').split('-').map(Number);if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return String(value||'');return new Intl.DateTimeFormat('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(parts[0],parts[1]-1,parts[2])))};
+
+let xoflyClients=[],xoflyTreatments=[],xoflyPayments=[];
+const xoflyCurrency=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(Number(n||0));
+const xoflyPhone=p=>String(p||'').replace(/\D/g,'');
+const xoflyElement=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e};
+function xoflyManualHours(){
+ const date=$('manualDate').value,sel=$('manualTime');sel.replaceChildren();
+ if(!date)return;
+ const [y,m,d]=date.split('-').map(Number),day=new Date(Date.UTC(y,m-1,d)).getUTCDay();
+ const hours=day===0?[]:day===6?[10,11,12,13,14]:[13,14,15,16,17];
+ const busy=new Set(appointmentsCache.filter(x=>x.appointment_date===date&&['pending','confirmed'].includes(x.status)).map(x=>String(x.appointment_time).slice(0,5)));
+ const current=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Mexico_City',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date());
+ for(const h of hours){const time=String(h).padStart(2,'0')+':00';if(busy.has(time)||(date===agendaLocalDate()&&time<=current))continue;const opt=document.createElement('option');opt.value=time;opt.textContent=appointmentTimeLabel(time);sel.append(opt)}
+ if(!sel.options.length){const opt=document.createElement('option');opt.value='';opt.textContent='Sin horarios disponibles';sel.append(opt)}
+}
+$('manualDate').min=agendaLocalDate();$('manualDate').value=agendaLocalDate();
+$('manualDate').onchange=xoflyManualHours;
+$('manualBooking').onsubmit=async e=>{
+ e.preventDefault();const out=$('manualBookingStatus');out.textContent='';
+ const name=$('manualName').value.trim(),phone=xoflyPhone($('manualPhone').value),date=$('manualDate').value,time=$('manualTime').value,service=$('manualService').value.trim();
+ if(name.length<3||phone.length!==10||!time||date<agendaLocalDate()){out.textContent='Revisa nombre, teléfono de 10 dígitos, fecha y horario.';return}
+ const b=e.submitter;if(b)b.disabled=true;
+ try{
+  const data={appointment_date:date,appointment_time:time,client_name:name,client_phone:phone,service,notes:$('manualNotes').value.trim()||null,status:'confirmed'};
+  const inserted=await request('/rest/v1/xofly_appointments?select=id',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(data)});
+  if(!Array.isArray(inserted)||inserted.length!==1)throw Error('No se confirmó el registro en Supabase.');
+  out.textContent='Cita guardada y confirmada. Puedes enviar WhatsApp ahora.';
+  await loadAppointments();
+  const existing=xoflyClients.find(c=>xoflyPhone(c.phone)===phone);
+  if(!existing){try{await request('/rest/v1/xofly_clients',{method:'POST',body:JSON.stringify({full_name:name,phone})});await xoflyLoadRecords()}catch(err){notice('Cita guardada, pero no se pudo crear el expediente: '+err.message)}}
+  agendaWhatsApp(data,'confirmation');
+  $('manualBooking').reset();$('manualDate').value=agendaLocalDate();xoflyManualHours();
+ }catch(err){out.textContent='No se pudo agendar: '+err.message}finally{if(b)b.disabled=false}
+};
+function xoflyRenderClients(){
+ const lookup=$('clientLookup').value.toLocaleLowerCase('es').trim(),target=$('clientResults');target.replaceChildren();
+ const sel=$('treatmentClient'),previous=sel.value;sel.replaceChildren();
+ const blank=document.createElement('option');blank.value='';blank.textContent='Selecciona un cliente';sel.append(blank);
+ for(const c of xoflyClients){const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.full_name+' · '+c.phone;sel.append(opt)}
+ sel.value=previous;
+ for(const c of xoflyClients.filter(c=>!lookup||c.full_name.toLocaleLowerCase('es').includes(lookup)||c.phone.includes(lookup)).slice(0,50)){
+  const div=document.createElement('div');div.className='xofly-result';div.append(xoflyElement('strong',c.full_name+' · '+c.phone));
+  const count=xoflyTreatments.filter(t=>t.client_id===c.id).length;div.append(xoflyElement('p',count+' tratamiento(s) registrados'));
+  if(c.notes)div.append(xoflyElement('small','Notas: '+c.notes));target.append(div)
+ }
+ if(!target.children.length)target.textContent='Sin clientes registrados.';
+}
+function xoflyRenderTreatments(){
+ const target=$('treatmentRecords');target.replaceChildren();
+ if(!xoflyTreatments.length){target.textContent='Todavía no hay tratamientos registrados.';return}
+ for(const t of xoflyTreatments){
+  const c=xoflyClients.find(c=>c.id===t.client_id),paid=xoflyPayments.filter(p=>p.treatment_id===t.id).reduce((a,p)=>a+Number(p.amount),0);
+  const div=document.createElement('div');div.className='xofly-result';
+  div.append(xoflyElement('strong',(c?.full_name||'Cliente')+' — '+t.treatment_name));
+  div.append(xoflyElement('p',`Sesiones: ${t.sessions_done}/${t.sessions_total} · Total: ${xoflyCurrency(t.total_price)} · Pagado: ${xoflyCurrency(paid)} · Saldo: ${xoflyCurrency(Number(t.total_price)-paid)}`));
+  if(t.notes)div.append(xoflyElement('small','Observaciones: '+t.notes));
+  if(t.sessions_done<t.sessions_total){const b=document.createElement('button');b.type='button';b.textContent='Registrar sesión realizada';b.onclick=async()=>{if(!confirm('¿Registrar una sesión adicional como realizada?'))return;b.disabled=true;try{await request('/rest/v1/xofly_treatments?id=eq.'+encodeURIComponent(t.id),{method:'PATCH',body:JSON.stringify({sessions_done:t.sessions_done+1})});await xoflyLoadRecords();notice('Sesión registrada')}catch(err){notice(err.message);b.disabled=false}};div.append(document.createElement('br'),b)}
+  const payment=document.createElement('button');payment.type='button';payment.textContent='Registrar abono';payment.onclick=async()=>{const raw=prompt('Importe del abono en MXN:');if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||Math.round(amount*100)!==amount*100){notice('Escribe un importe válido, mayor a cero y con máximo dos decimales.');return}if(amount>Number(t.total_price)-paid){notice('El abono supera el saldo pendiente.');return}try{await request('/rest/v1/xofly_treatment_payments',{method:'POST',body:JSON.stringify({treatment_id:t.id,amount})});await xoflyLoadRecords();notice('Abono registrado')}catch(err){notice(err.message)}};div.append(payment);target.append(div)
+ }
+}
+async function xoflyLoadRecords(){
+ if(!token)return;
+ try{
+  const [c,t,p]=await Promise.all([
+   request('/rest/v1/xofly_clients?select=*&order=created_at.desc&limit=1000'),
+   request('/rest/v1/xofly_treatments?select=*&order=created_at.desc&limit=1000'),
+   request('/rest/v1/xofly_treatment_payments?select=*&order=created_at.desc&limit=1000')
+  ]);
+  xoflyClients=c;xoflyTreatments=t;xoflyPayments=p;xoflyRenderClients();xoflyRenderTreatments();
+ }catch(err){$('clientResults').textContent='No se pudieron cargar expedientes: '+err.message;notice('Revisa si ejecutaste el SQL del módulo: '+err.message)}
+}
+$('clientLookup').oninput=xoflyRenderClients;
+$('clientForm').onsubmit=async e=>{e.preventDefault();const full_name=$('clientName').value.trim(),phone=xoflyPhone($('clientPhone').value);if(full_name.length<3||phone.length!==10){notice('Ingresa nombre completo y teléfono de 10 dígitos.');return}try{await request('/rest/v1/xofly_clients',{method:'POST',body:JSON.stringify({full_name,phone,notes:$('clientNotes').value.trim()||null})});$('clientForm').reset();await xoflyLoadRecords();notice('Cliente registrado')}catch(err){notice('No se pudo guardar el cliente: '+err.message)}};
+$('treatmentForm').onsubmit=async e=>{e.preventDefault();const sessions_total=Number($('treatmentTotal').value),sessions_done=Number($('treatmentDone').value),total_price=Number($('treatmentPrice').value);if(!Number.isInteger(sessions_total)||sessions_total<1||!Number.isInteger(sessions_done)||sessions_done<0||sessions_done>sessions_total||!Number.isFinite(total_price)||total_price<0){notice('Revisa sesiones y precio.');return}try{await request('/rest/v1/xofly_treatments',{method:'POST',body:JSON.stringify({client_id:$('treatmentClient').value,treatment_name:$('treatmentName').value.trim(),sessions_total,sessions_done,total_price,notes:$('treatmentNotes').value.trim()||null})});$('treatmentForm').reset();await xoflyLoadRecords();notice('Tratamiento registrado')}catch(err){notice('No se pudo registrar el tratamiento: '+err.message)}};
+
 let appointmentsCache=[],selectedAppointmentDay=null;
 const calendarNow=new Date();let calendarYear=calendarNow.getFullYear(),calendarMonth=calendarNow.getMonth();
 const isoDay=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -162,7 +271,7 @@ $('agendaSlotDate').value=agendaLocalDate();
 $('agendaSlotDate').onchange=renderAgendaSlots;
 $('agendaClientSearch').oninput=renderAgendaHistory;
 
-async function loadAppointments(){if(!token)return;const list=$('appointmentList');list.textContent='Cargando citas…';try{appointmentsCache=[];for(let offset=0;offset<10000;offset+=500){const page=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc&limit=500&offset='+offset);appointmentsCache.push(...page);if(page.length<500)break}drawCalendar();drawAppointments();renderAgenda()}catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}}
+async function loadAppointments(){if(!token)return;const list=$('appointmentList');list.textContent='Cargando citas…';try{appointmentsCache=[];for(let offset=0;offset<10000;offset+=500){const page=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc&limit=500&offset='+offset);appointmentsCache.push(...page);if(page.length<500)break}drawCalendar();drawAppointments();renderAgenda();xoflyManualHours()}catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}}
 $('prevMonth').onclick=()=>{calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--}drawCalendar()};
 $('nextMonth').onclick=()=>{calendarMonth++;if(calendarMonth>11){calendarMonth=0;calendarYear++}drawCalendar()};
 $('appointmentSearch').oninput=()=>{drawCalendar();drawAppointments()};
