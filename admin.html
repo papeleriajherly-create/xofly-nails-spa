@@ -1,12 +1,18 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración | Xofly Nails & Spa</title><script src="/config.js"></script><style>
 :root{--blue:#063c9d;--cyan:#08bfd7;--line:#dceaf5}*{box-sizing:border-box}body{font:16px system-ui,sans-serif;background:#f4fbff;color:#18345f;margin:0}.wrap{max-width:1040px;margin:24px auto;padding:18px}section{background:white;padding:24px;border:1px solid var(--line);border-radius:18px;margin:20px 0;box-shadow:0 5px 25px #063c9d0b}h1,h2{color:var(--blue)}label{display:block;margin:12px 0;font-weight:650}input,textarea,select{display:block;box-sizing:border-box;width:100%;padding:12px;margin-top:5px;border:1px solid #bcd5e6;border-radius:8px;font:inherit}input[type=checkbox]{display:inline;width:auto}button{padding:11px 16px;background:var(--blue);color:white;border:0;border-radius:9px;cursor:pointer;margin:5px 5px 5px 0;font-weight:650}.secondary{background:#64748b}.danger{background:#b91c1c}.item{border-top:1px solid #ddd;padding:12px 0}.item p{white-space:pre-wrap}small,.hint{color:#60718c}#msg{padding:10px;color:#9d3418;white-space:pre-wrap}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pill{display:inline-block;background:#e8faff;color:#075a85;border-radius:99px;padding:4px 9px;font-size:12px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.thumb{width:105px;max-height:100px;object-fit:contain;vertical-align:middle;border-radius:8px}.hidden{display:none!important}@media(max-width:700px){.row{grid-template-columns:1fr}section{padding:16px}}
+
+/* Calendario de citas */
+.calendar-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:16px 0}.calendar-toolbar h3{margin:0;color:var(--blue);text-transform:capitalize}.calendar-toolbar button{margin:0}.calendar-filters{display:grid;grid-template-columns:1fr 180px;gap:12px;margin:12px 0}.calendar-filters label{margin:0}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.calendar-weekday{text-align:center;font-weight:700;font-size:12px;padding:10px 0;color:#64748b}.calendar-day{min-height:95px;border:1px solid #dceaf5;border-radius:12px;background:#fff;padding:7px;display:flex;flex-direction:column;gap:5px;align-items:stretch;color:#18345f;text-align:left;margin:0;cursor:pointer}.calendar-day:hover,.calendar-day:focus-visible{outline:2px solid #08bfd7}.calendar-day.selected{border:2px solid #063c9d;background:#eff8ff}.calendar-day.other-month{opacity:.42}.calendar-day.today .calendar-day-number{background:#063c9d;color:white;border-radius:100px}.calendar-day-number{align-self:flex-start;padding:3px 7px;font-weight:800}.calendar-chip{font-size:11px;line-height:1.2;padding:4px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendar-chip.pending{background:#fff2cc;color:#785000}.calendar-chip.confirmed{background:#dcfce7;color:#166534}.calendar-chip.cancelled{background:#f1f5f9;color:#64748b}.calendar-legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0;font-size:13px}.calendar-legend span{display:inline-flex;align-items:center;gap:6px}.calendar-dot{height:10px;width:10px;border-radius:50%;display:inline-block}.calendar-dot.pending{background:#eab308}.calendar-dot.confirmed{background:#16a34a}.calendar-dot.cancelled{background:#94a3b8}.appointment-card{border:1px solid #dceaf5;border-left:5px solid #eab308;border-radius:12px;padding:14px;margin:10px 0;background:#fff}.appointment-card.confirmed{border-left-color:#16a34a}.appointment-card.cancelled{border-left-color:#94a3b8}.appointment-card p{margin:6px 0;overflow-wrap:anywhere}.appointment-card .pill{font-weight:700}.appointment-actions{display:flex;gap:6px;flex-wrap:wrap}.appointment-actions button{margin:5px 0}.appointment-actions .wa-button{background:#128c4b}.calendar-empty{padding:20px;text-align:center;color:#64748b;background:#f8fbff;border-radius:12px}@media(max-width:700px){.calendar-filters{grid-template-columns:1fr}.calendar-day{min-height:65px;padding:3px;gap:2px}.calendar-day-number{font-size:12px;padding:2px 4px}.calendar-chip{font-size:10px;padding:3px}.calendar-grid{gap:3px}.calendar-weekday{font-size:10px}}
 </style></head><body><div class="wrap"><h1>🦋 Panel Xofly Nails & Spa</h1><p>Administra servicios, paquetes, precios, imágenes y citas. Los cambios se guardan en Supabase.</p><a href="/">← Ver página pública</a><p id="msg" role="status"></p>
 <section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input type="email" id="email" required autocomplete="username"></label><label>Contraseña<input type="password" id="password" required autocomplete="current-password"></label><button>Entrar</button></form></section>
 <div id="panel" hidden><button id="logout" class="secondary">Cerrar sesión</button>
 <section><h2 id="formTitle">Agregar servicio o promoción</h2><p class="hint">Para que aparezca en la lista de precios, selecciona «Servicio» y asigna su categoría. Escribe las sesiones en el nombre, por ejemplo: «Limpieza facial profunda · 3 sesiones».</p><form id="editor"><div class="row"><label>Tipo<select id="kind"><option value="xofly_services">Servicio / precio</option><option value="xofly_promotions">Promoción</option></select></label><label>Categoría<select id="category"><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label></div><label>Nombre del tratamiento<input id="title" required maxlength="140" placeholder="Ej. Limpieza facial profunda · 3 sesiones"></label><label>Descripción / beneficios<textarea id="description" rows="3" maxlength="1000" placeholder="¿Para qué sirve el tratamiento?"></textarea></label><div class="row"><label>Precio en MXN (vacío = consultar)<input id="price" type="number" min="0" step="0.01"></label><label>URL HTTPS de imagen explicativa (opcional)<input id="image_url" type="url" placeholder="https://..."></label></div><label><input type="checkbox" id="active" checked> Visible al público</label><div class="toolbar"><button id="save">Guardar</button><button type="button" id="cancel" class="secondary">Cancelar edición</button></div></form></section>
 <section><h2>Servicios y precios</h2><label>Filtrar por categoría<select id="filter"><option value="">Todas</option><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label><div id="services"></div></section>
 <section><h2>Promociones</h2><div id="promos"></div></section>
-<section><h2>📅 Citas reservadas</h2><p>Las citas pendientes o confirmadas bloquean horarios. Al cancelar una cita, se libera el espacio si las políticas de la base de datos lo permiten.</p><button id="reloadAppointments" type="button">Actualizar citas</button><div id="appointmentList"></div></section>
+<section><h2>📅 Citas reservadas</h2><p>Las citas pendientes o confirmadas bloquean horarios. Al cancelar una cita, se libera el espacio si las políticas de la base de datos lo permiten.</p><div class="calendar-toolbar"><button type="button" id="prevMonth" aria-label="Mes anterior">← Anterior</button><h3 id="calendarMonth" aria-live="polite"></h3><button type="button" id="nextMonth" aria-label="Mes siguiente">Siguiente →</button></div>
+<div class="calendar-filters"><label>Buscar por cliente, teléfono o tratamiento<input id="appointmentSearch" type="search" placeholder="Buscar cita..."></label><label>Estado<select id="appointmentFilter"><option value="">Todos</option><option value="pending">Pendientes</option><option value="confirmed">Confirmadas</option><option value="cancelled">Canceladas</option></select></label></div>
+<div class="calendar-legend"><span><i class="calendar-dot pending"></i>Pendiente</span><span><i class="calendar-dot confirmed"></i>Confirmada</span><span><i class="calendar-dot cancelled"></i>Cancelada</span></div>
+<div id="appointmentCalendar" class="calendar-grid" aria-label="Calendario de citas"></div><h3 id="appointmentDayTitle">Citas</h3><div id="appointmentList"></div><button id="showAllAppointments" type="button" class="secondary">Ver todas las citas</button> <button id="reloadAppointments" type="button">Actualizar citas</button></section>
 </div></div><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),url=window.XOFLY_SUPABASE_URL,key=window.XOFLY_SUPABASE_ANON_KEY;let token='',editId=null,editKind=null,services=[];const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const notice=s=>$('msg').textContent=s;
 if(!url||!key){notice('Falta configurar config.js con los datos públicos de Supabase.');$('loginForm').querySelector('button').disabled=true;return}
@@ -23,40 +29,50 @@ async function refresh(){const [s,p]=await Promise.all([request('/rest/v1/xofly_
 $('editor').onsubmit=async e=>{e.preventDefault();if(!token)return;const table=editKind||$('kind').value;const body={description:$('description').value.trim(),image_url:$('image_url').value.trim()||null,active:$('active').checked};if(table==='xofly_services'){body.name=$('title').value.trim();body.category=$('category').value;body.price=$('price').value===''?null:Number($('price').value)}else{body.title=$('title').value.trim()};if(body.image_url&&!body.image_url.startsWith('https://'))return notice('La imagen debe usar HTTPS');try{await request('/rest/v1/'+table+(editId?'?id=eq.'+encodeURIComponent(editId):''),{method:editId?'PATCH':'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)});clearForm();notice('Cambios guardados en Supabase');await refresh()}catch(e){notice('No se pudo guardar: '+e.message)}};
 const appointmentStatusLabel={pending:'Pendiente',confirmed:'Confirmada',cancelled:'Cancelada'};
 const appointmentDateLabel=value=>{const parts=String(value||'').split('-').map(Number);if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return String(value||'');return new Intl.DateTimeFormat('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(parts[0],parts[1]-1,parts[2])))};
-async function loadAppointments(){
- if(!token)return;
- const list=$('appointmentList');list.textContent='Cargando…';
- try{
-  const rows=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc');
-  list.replaceChildren();if(!rows.length){list.textContent='No hay citas registradas';return}
-  for(const x of rows){
-   const el=document.createElement('div');el.className='item';
-   const p=document.createElement('p');
-   p.textContent=`${appointmentDateLabel(x.appointment_date)} · ${String(x.appointment_time).slice(0,5)} | ${x.client_name} | ${x.client_phone} | ${x.service} | ${appointmentStatusLabel[x.status]||x.status}`;
-   el.append(p);
-   const actions=x.status==='pending'?[['confirmed','Confirmar cita'],['cancelled','Cancelar / liberar horario']]:x.status==='confirmed'?[['cancelled','Cancelar / liberar horario']]:[];
-   for(const [status,label] of actions){
-    const b=document.createElement('button');b.type='button';b.textContent=label;b.className=status==='cancelled'?'danger':'';
-    b.onclick=async()=>{
-     if(!confirm(status==='confirmed'?'¿Confirmar esta cita?':'¿Cancelar esta cita y liberar su horario?'))return;
-     b.disabled=true;
-     try{
-      const updated=await request('/rest/v1/xofly_appointments?id=eq.'+encodeURIComponent(x.id)+'&status=eq.'+encodeURIComponent(x.status)+'&select=id,status',{
-       method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({status})
-      });
-      if(!Array.isArray(updated)||updated.length!==1||updated[0].status!==status){
-       throw Error('Supabase no actualizó la cita. Revisa los permisos UPDATE/RLS de xofly_appointments y vuelve a intentarlo.');
-      }
-      notice(status==='confirmed'?'Cita confirmada correctamente.':'Cita cancelada y horario liberado.');
-      await loadAppointments();
-     }catch(e){notice('Error al cambiar el estado: '+e.message);b.disabled=false}
-    };
-    el.append(b);
-   }
-   list.append(el);
-  }
- }catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}
+let appointmentsCache=[],selectedAppointmentDay=null;
+const calendarNow=new Date();let calendarYear=calendarNow.getFullYear(),calendarMonth=calendarNow.getMonth();
+const isoDay=(y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const dateTitle=s=>appointmentDateLabel(s);
+const appointmentTimeLabel=t=>{const a=String(t||'').split(':');const h=Number(a[0]);return Number.isFinite(h)?`${h%12||12}:${a[1]||'00'} ${h>=12?'p. m.':'a. m.'}`:String(t||'')};
+const cleanPhone=p=>{let n=String(p||'').replace(/\D/g,'');if(n.length===10)n='52'+n;return n.length>=12&&n.length<=15?n:''};
+function filteredAppointments(){const q=$('appointmentSearch').value.trim().toLocaleLowerCase('es');const state=$('appointmentFilter').value;return appointmentsCache.filter(x=>(!state||x.status===state)&&(!q||[x.client_name,x.client_phone,x.service,x.appointment_date].some(v=>String(v||'').toLocaleLowerCase('es').includes(q))))}
+function drawCalendar(){
+ const grid=$('appointmentCalendar');grid.replaceChildren();
+ $('calendarMonth').textContent=new Intl.DateTimeFormat('es-MX',{month:'long',year:'numeric'}).format(new Date(calendarYear,calendarMonth,1));
+ for(const d of ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']){const e=document.createElement('div');e.className='calendar-weekday';e.textContent=d;grid.append(e)}
+ const first=new Date(calendarYear,calendarMonth,1);const start=(first.getDay()+6)%7;const count=new Date(calendarYear,calendarMonth+1,0).getDate();
+ const rows=filteredAppointments();const today=new Date();const todayKey=isoDay(today.getFullYear(),today.getMonth(),today.getDate());
+ for(let i=0;i<Math.ceil((start+count)/7)*7;i++){
+  const date=new Date(calendarYear,calendarMonth,1-start+i);const y=date.getFullYear(),m=date.getMonth(),d=date.getDate(),key=isoDay(y,m,d);
+  const cell=document.createElement('button');cell.type='button';cell.className='calendar-day'+(m!==calendarMonth?' other-month':'')+(key===selectedAppointmentDay?' selected':'')+(key===todayKey?' today':'');cell.setAttribute('aria-label',dateTitle(key));
+  const num=document.createElement('span');num.className='calendar-day-number';num.textContent=d;cell.append(num);
+  const dayRows=rows.filter(x=>x.appointment_date===key);for(const x of dayRows.slice(0,2)){const chip=document.createElement('span');chip.className='calendar-chip '+x.status;chip.textContent=String(x.appointment_time).slice(0,5)+' '+x.client_name;cell.append(chip)}
+  if(dayRows.length>2){const more=document.createElement('span');more.className='calendar-chip';more.textContent='+'+(dayRows.length-2)+' citas';cell.append(more)}
+  cell.onclick=()=>{selectedAppointmentDay=key;calendarYear=y;calendarMonth=m;drawCalendar();drawAppointments()};grid.append(cell)
+ }
 }
+function drawAppointments(){
+ const list=$('appointmentList');list.replaceChildren();const rows=filteredAppointments().filter(x=>!selectedAppointmentDay||x.appointment_date===selectedAppointmentDay);
+ $('appointmentDayTitle').textContent=selectedAppointmentDay?'Citas del '+dateTitle(selectedAppointmentDay):'Todas las citas ('+rows.length+')';
+ if(!rows.length){const e=document.createElement('p');e.className='calendar-empty';e.textContent='No hay citas con estos filtros.';list.append(e);return}
+ for(const x of rows){const card=document.createElement('article');card.className='appointment-card '+x.status;
+ const title=document.createElement('strong');title.textContent=appointmentTimeLabel(x.appointment_time)+' · '+x.client_name;card.append(title);
+ const status=document.createElement('span');status.className='pill';status.style.marginLeft='8px';status.textContent=appointmentStatusLabel[x.status]||x.status;card.append(status);
+ const details=document.createElement('p');details.textContent=`${dateTitle(x.appointment_date)} · ${x.service} · ${x.client_phone}`;card.append(details);
+ if(x.notes){const note=document.createElement('p');note.textContent='Notas: '+x.notes;card.append(note)}
+ const actions=document.createElement('div');actions.className='appointment-actions';
+ const statuses=x.status==='pending'?[['confirmed','Confirmar cita'],['cancelled','Cancelar / liberar horario']]:x.status==='confirmed'?[['cancelled','Cancelar / liberar horario']]:[];
+ for(const [next,label] of statuses){const b=document.createElement('button');b.type='button';b.textContent=label;b.className=next==='cancelled'?'danger':'';b.onclick=async()=>{if(!confirm(next==='confirmed'?'¿Confirmar esta cita?':'¿Cancelar esta cita y liberar su horario?'))return;b.disabled=true;try{const updated=await request('/rest/v1/xofly_appointments?id=eq.'+encodeURIComponent(x.id)+'&status=eq.'+encodeURIComponent(x.status)+'&select=id,status',{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({status:next})});if(!Array.isArray(updated)||updated.length!==1||updated[0].status!==next)throw Error('Supabase no actualizó la cita. Revisa permisos UPDATE/RLS.');notice(next==='confirmed'?'Cita confirmada correctamente.':'Cita cancelada; horario liberado.');await loadAppointments()}catch(e){notice('Error al actualizar la cita: '+e.message);b.disabled=false}};actions.append(b)}
+ if(x.status==='confirmed') {const b=document.createElement('button');b.type='button';b.className='wa-button';b.textContent='Enviar confirmación por WhatsApp';b.onclick=()=>{const phone=cleanPhone(x.client_phone);if(!phone){notice('El teléfono de esta cita no tiene un formato válido para WhatsApp.');return}const msg=`*Xofly Nails & Spa*\n*CONFIRMACIÓN DE CITA*\n━━━━━━━━━━━━━━━━\n\nHola, ${x.client_name}. Tu cita ha sido *confirmada*.\n\n*Tratamiento:* ${x.service}\n*Fecha:* ${dateTitle(x.appointment_date)}\n*Hora de llegada:* ${appointmentTimeLabel(x.appointment_time)}\n\nTe esperamos. ¡Gracias por elegir Xofly Nails & Spa!`;window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg.replace(/\\n/g,'\n')),'_blank','noopener,noreferrer')};actions.append(b)}
+ card.append(actions);list.append(card)
+ }
+}
+async function loadAppointments(){if(!token)return;const list=$('appointmentList');list.textContent='Cargando citas…';try{appointmentsCache=await request('/rest/v1/xofly_appointments?select=*&order=appointment_date.asc,appointment_time.asc');drawCalendar();drawAppointments()}catch(e){list.textContent='No se pudieron cargar las citas: '+e.message}}
+$('prevMonth').onclick=()=>{calendarMonth--;if(calendarMonth<0){calendarMonth=11;calendarYear--}drawCalendar()};
+$('nextMonth').onclick=()=>{calendarMonth++;if(calendarMonth>11){calendarMonth=0;calendarYear++}drawCalendar()};
+$('appointmentSearch').oninput=()=>{drawCalendar();drawAppointments()};
+$('appointmentFilter').onchange=()=>{drawCalendar();drawAppointments()};
+$('showAllAppointments').onclick=()=>{selectedAppointmentDay=null;drawCalendar();drawAppointments()};
 $('reloadAppointments').onclick=loadAppointments;
 })();
 </script></body></html>
