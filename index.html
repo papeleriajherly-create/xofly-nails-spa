@@ -104,7 +104,12 @@ footer{background:#031d4a;color:#d9ecff;padding:38px 0;text-align:center}
 .xofly-explain-card{margin:0;border-radius:18px;overflow:hidden;background:white;border:1px solid #dceaf5;box-shadow:0 8px 24px rgba(0,45,96,.07)}
 .xofly-explain-card img{width:100%;height:auto;display:block}
 @media(max-width:600px){.xofly-tab{flex:1 1 100%;}.xofly-category{padding:16px}}
-</style><style>.xofly-detail{padding:8px 14px 16px;background:#fff;border:1px solid #dceaf5;border-radius:12px;margin-top:-4px}.xofly-detail img{display:block;max-width:260px;width:100%;height:auto;border-radius:10px;margin:6px 0}.xofly-detail p{margin:8px 0;color:#60718c;font-size:.92rem;line-height:1.5}</style></head>
+</style><style>.xofly-detail{padding:8px 14px 16px;background:#fff;border:1px solid #dceaf5;border-radius:12px;margin-top:-4px}.xofly-detail img{display:block;max-width:260px;width:100%;height:auto;border-radius:10px;margin:6px 0}.xofly-detail p{margin:8px 0;color:#60718c;font-size:.92rem;line-height:1.5}</style><style>
+/* Botón de consulta conectado a WhatsApp */
+.price-row:has(strong){position:relative}
+.price-row strong[data-xofly-consultar]{cursor:pointer;color:#087f91;text-decoration:underline;text-underline-offset:3px}
+.price-row strong[data-xofly-consultar]:focus-visible{outline:3px solid #09a5b4;outline-offset:4px;border-radius:4px}
+</style></head>
 <body>
 <div class="topbar"><div class="wrap"><span>📱 962 117 4985</span><span>📍 Fraccionamiento Costa Verde · Tapachula, Chiapas</span></div></div>
 <header>
@@ -342,4 +347,31 @@ document.querySelectorAll('.xofly-tab').forEach(button=>button.addEventListener(
  document.querySelectorAll('.xofly-tab').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-selected',String(b===button));});
  document.querySelectorAll('.xofly-category').forEach(section=>{section.hidden=section.id!==button.dataset.tab;});
 }));
+</script><script>
+// Restaurar consulta directa de tratamientos desde el catálogo, incluso los cargados desde Supabase.
+(function(){
+  const phone='529621174985';
+  function isConsult(el){return el && el.matches('.price-row strong') && /^consultar$/i.test(el.textContent.trim());}
+  function prepare(){
+    document.querySelectorAll('.price-row strong').forEach(el=>{
+      if(!isConsult(el))return;
+      el.setAttribute('data-xofly-consultar','');
+      el.setAttribute('role','button');
+      el.setAttribute('tabindex','0');
+      el.setAttribute('aria-label','Consultar por WhatsApp: '+(el.closest('.price-row')?.querySelector('span')?.textContent.trim()||'tratamiento'));
+    });
+  }
+  function send(el){
+    if(!isConsult(el))return;
+    const service=el.closest('.price-row')?.querySelector('span')?.textContent.trim();
+    if(!service)return;
+    const message='Hola Xofly Nails & Spa, quiero solicitar información y una cita para: '+service+'. ¿Me pueden confirmar disponibilidad y precio?';
+    window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+  }
+  document.addEventListener('click',e=>{const el=e.target.closest('.price-row strong');if(el)send(el)});
+  document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&isConsult(document.activeElement)){e.preventDefault();send(document.activeElement)}});
+  prepare();
+  const root=document.getElementById('servicios');
+  if(root){let pending=false;new MutationObserver(()=>{if(pending)return;pending=true;queueMicrotask(()=>{pending=false;prepare()})}).observe(root,{childList:true,subtree:true})}
+})();
 </script></body></html>
