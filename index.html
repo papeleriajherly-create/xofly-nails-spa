@@ -275,7 +275,7 @@ xoflyBook.addEventListener('click',async()=>{
   await xoflyRpc('xofly_solicitar_cita',{p_fecha:d,p_hora:t,p_nombre:n,p_telefono:p,p_servicio:s,p_notas:note});
   const fechaLarga = new Intl.DateTimeFormat('es-MX', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(d+'T12:00:00Z'));
   const fechaWhatsApp = fechaLarga.charAt(0).toUpperCase()+fechaLarga.slice(1);
-  const msg=`Hola Xofly Nails & Spa, registré una solicitud de cita pendiente de confirmación.\n\n💙 Servicio: ${s}\n👤 Nombre: ${n}\n📱 Teléfono: ${p}\n📅 Fecha: ${fechaWhatsApp}\n🕐 Hora de llegada: ${xoflyLabel(t)}${note?'\n📝 Comentario: '+note:''}\n\nEntiendo que la cita debe confirmarse y que la duración del tratamiento puede variar.`;
+  const msg=`*Xofly Nails & Spa*\n*SOLICITUD DE CITA*\n━━━━━━━━━━━━━━━━\n\nHola, buen día. Acabo de registrar una solicitud de cita y me gustaría confirmar la disponibilidad.\n\n*DATOS DE LA RESERVACIÓN*\n\n*Tratamiento:* ${s}\n*Cliente:* ${n}\n*Teléfono:* ${p}\n*Fecha:* ${fechaWhatsApp}\n*Hora de llegada:* ${xoflyLabel(t)}${note?'\n*Comentarios:* '+note:''}\n\n━━━━━━━━━━━━━━━━\n*Estado:* Pendiente de confirmación\n\nSé que la duración de cada tratamiento puede variar y que podría existir tiempo de espera.\n\n¡Muchas gracias!`;
   xoflyMessage('Solicitud registrada correctamente. Abriendo WhatsApp para avisar al establecimiento.');
   const link='https://wa.me/529621174985?text='+encodeURIComponent(msg);
   const opened=window.open(link,'_blank','noopener,noreferrer');
