@@ -273,7 +273,9 @@ xoflyBook.addEventListener('click',async()=>{
  xoflyBook.disabled=true;xoflyMessage('Registrando tu solicitud...');
  try{
   await xoflyRpc('xofly_solicitar_cita',{p_fecha:d,p_hora:t,p_nombre:n,p_telefono:p,p_servicio:s,p_notas:note});
-  const msg=`Hola Xofly Nails & Spa, registré una solicitud de cita pendiente de confirmación.\n\n💙 Servicio: ${s}\n👤 Nombre: ${n}\n📱 Teléfono: ${p}\n📅 Fecha: ${d}\n🕐 Hora de llegada: ${xoflyLabel(t)}${note?'\n📝 Comentario: '+note:''}\n\nEntiendo que la cita debe confirmarse y que la duración del tratamiento puede variar.`;
+  const fechaLarga = new Intl.DateTimeFormat('es-MX', {weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(d+'T12:00:00Z'));
+  const fechaWhatsApp = fechaLarga.charAt(0).toUpperCase()+fechaLarga.slice(1);
+  const msg=`Hola Xofly Nails & Spa, registré una solicitud de cita pendiente de confirmación.\n\n💙 Servicio: ${s}\n👤 Nombre: ${n}\n📱 Teléfono: ${p}\n📅 Fecha: ${fechaWhatsApp}\n🕐 Hora de llegada: ${xoflyLabel(t)}${note?'\n📝 Comentario: '+note:''}\n\nEntiendo que la cita debe confirmarse y que la duración del tratamiento puede variar.`;
   xoflyMessage('Solicitud registrada correctamente. Abriendo WhatsApp para avisar al establecimiento.');
   const link='https://wa.me/529621174985?text='+encodeURIComponent(msg);
   const opened=window.open(link,'_blank','noopener,noreferrer');
