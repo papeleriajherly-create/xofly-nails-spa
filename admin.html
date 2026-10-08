@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Administración | Xofly Nails &amp; Spa</title><script src="/config.js"></script><style>
 :root{--blue:#063c9d;--cyan:#08bfd7;--line:#dceaf5}*{box-sizing:border-box}body{font:16px system-ui,sans-serif;background:#f4fbff;color:#18345f;margin:0}.wrap{max-width:1040px;margin:24px auto;padding:18px}section{background:white;padding:24px;border:1px solid var(--line);border-radius:18px;margin:20px 0;box-shadow:0 5px 25px #063c9d0b}h1,h2{color:var(--blue)}label{display:block;margin:12px 0;font-weight:650}input,textarea,select{display:block;box-sizing:border-box;width:100%;padding:12px;margin-top:5px;border:1px solid #bcd5e6;border-radius:8px;font:inherit}input[type=checkbox]{display:inline;width:auto}button{padding:11px 16px;background:var(--blue);color:white;border:0;border-radius:9px;cursor:pointer;margin:5px 5px 5px 0;font-weight:650}.secondary{background:#64748b}.danger{background:#b91c1c}.item{border-top:1px solid #ddd;padding:12px 0}.item p{white-space:pre-wrap}small,.hint{color:#60718c}#msg{padding:10px;color:#9d3418;white-space:pre-wrap}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pill{display:inline-block;background:#e8faff;color:#075a85;border-radius:99px;padding:4px 9px;font-size:12px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.thumb{width:105px;max-height:100px;object-fit:contain;vertical-align:middle;border-radius:8px}.hidden{display:none!important}@media(max-width:700px){.row{grid-template-columns:1fr}section{padding:16px}}
 
@@ -45,7 +46,7 @@ body{background:linear-gradient(135deg,#eef8ff 0%,#f8fcff 50%,#edf8fc 100%)}
 @media(max-width:760px){#xfAdminNav{grid-template-columns:repeat(3,minmax(0,1fr))}#xfAdminNav button{min-height:60px}}
 @media(max-width:420px){#xfAdminNav{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#xfAdminNav .xf-nav-label{font-size:.73rem}}
 </style></head><body><div class="wrap"><h1>🦋 Panel Xofly Nails &amp; Spa</h1><p>Administra servicios, paquetes, precios, imágenes y citas. Los cambios se guardan en Supabase.</p><a href="/">← Ver página pública</a><p id="msg" role="status"></p>
-<section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input autocomplete="username" id="email" required="" type="email"/></label><label>Contraseña<input autocomplete="current-password" id="password" required="" type="password"/></label><button>Entrar</button></form></section>
+<section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input autocomplete="username" id="email" required="" type="email"/></label><label>Contraseña<input autocomplete="current-password" id="password" required="" type="password"/></label><button>Entrar</button></form><div class="xofly-section"><h3>Recuperar contraseña</h3><p class="hint">Escribe el correo de la dueña para recibir un enlace de recuperación.</p><form id="xfRecoverForm"><label>Correo registrado<input autocomplete="email" id="xfRecoverEmail" required="" type="email"/></label><button class="secondary" type="submit">Enviar enlace de recuperación</button></form><p id="xfRecoverStatus" role="status"></p></div><div class="xofly-section" hidden="" id="xfNewPasswordBox"><h3>Establecer nueva contraseña</h3><form id="xfNewPasswordForm"><label>Nueva contraseña (mínimo 12 caracteres)<input autocomplete="new-password" id="xfNewPassword" minlength="12" required="" type="password"/></label><button type="submit">Guardar nueva contraseña</button></form><p id="xfNewPasswordStatus" role="status"></p></div></section>
 <div hidden="" id="panel"><button class="secondary" id="logout">Cerrar sesión</button><nav aria-label="Secciones del panel administrativo" id="xfAdminNav" role="tablist"><button aria-selected="false" data-xf-tab="inicio" role="tab" type="button"><span>🏠</span><span class="xf-nav-label">Inicio</span></button><button aria-selected="false" data-xf-tab="calendario" role="tab" type="button"><span>📅</span><span class="xf-nav-label">Calendario</span></button><button aria-selected="false" data-xf-tab="agendar" role="tab" type="button"><span>🗓️</span><span class="xf-nav-label">Agendar</span></button><button aria-selected="false" data-xf-tab="clientes" role="tab" type="button"><span>👤</span><span class="xf-nav-label">Clientes</span></button><button aria-selected="false" data-xf-tab="finanzas" role="tab" type="button"><span>📊</span><span class="xf-nav-label">Finanzas</span></button><button aria-selected="false" data-xf-tab="catalogo" role="tab" type="button"><span>💅</span><span class="xf-nav-label">Catálogo</span></button></nav><h2 aria-live="polite" id="xfPageTitle"></h2>
 <section data-xf-page="catalogo" id="xfPageSection0"><h2 id="formTitle">Agregar servicio o promoción</h2><p class="hint">Para que aparezca en la lista de precios, selecciona «Servicio» y asigna su categoría. Escribe las sesiones en el nombre, por ejemplo: «Limpieza facial profunda · 3 sesiones».</p><form id="editor"><div class="row"><label>Tipo<select id="kind"><option value="xofly_services">Servicio / precio</option><option value="xofly_promotions">Promoción</option></select></label><label>Categoría<select id="category"><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label></div><label>Nombre del tratamiento<input id="title" maxlength="140" placeholder="Ej. Limpieza facial profunda · 3 sesiones" required=""/></label><label>Descripción / beneficios<textarea id="description" maxlength="1000" placeholder="¿Para qué sirve el tratamiento?" rows="3"></textarea></label><div class="row"><label>Precio en MXN (vacío = consultar)<input id="price" min="0" step="0.01" type="number"/></label><label>URL HTTPS de imagen explicativa (opcional)<input id="image_url" placeholder="https://..." type="url"/></label></div><label><input checked="" id="active" type="checkbox"/> Visible al público</label><div class="toolbar"><button id="save">Guardar</button><button class="secondary" id="cancel" type="button">Cancelar edición</button></div></form></section>
 <section data-xf-page="catalogo" id="xfPageSection1"><h2>Servicios y precios</h2><label>Filtrar por categoría<select id="filter"><option value="">Todas</option><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label><div id="services"></div></section>
@@ -67,7 +68,7 @@ body{background:linear-gradient(135deg,#eef8ff 0%,#f8fcff 50%,#edf8fc 100%)}
 <label>Teléfono<input id="clientPhone" inputmode="tel" maxlength="20" required=""/></label></div>
 <label>Observaciones administrativas (opcional)<textarea id="clientNotes" maxlength="1000" rows="2"></textarea></label>
 <button>Guardar cliente</button></form></div>
-<div class="xofly-section"><h3>Buscar expediente</h3><label>Nombre o teléfono<input id="clientLookup" placeholder="Buscar cliente..." type="search"/></label><div id="clientResults"></div></div>
+<div class="xofly-section"><h3>Buscar expediente</h3><label>Nombre o teléfono<input id="clientLookup" placeholder="Buscar cliente..." type="search"/></label><div id="clientResults"></div><div class="xofly-section" hidden="" id="xfClientProfile"><h3>Ficha integral del cliente</h3><div id="xfClientProfileBody"></div></div></div>
 <div class="xofly-section"><h3>Registrar tratamiento</h3><form id="treatmentForm">
 <label>Cliente<select id="treatmentClient" required=""></select></label>
 <div class="xofly-formgrid"><label>Tratamiento<input id="treatmentName" maxlength="160" required=""/></label>
@@ -80,7 +81,7 @@ body{background:linear-gradient(135deg,#eef8ff 0%,#f8fcff 50%,#edf8fc 100%)}
 <div class="xf-pro-panel" hidden="" id="xfEditTreatmentPanel"><h3>Editar tratamiento</h3><form id="xfEditTreatmentForm"><input id="xfEditTreatmentId" type="hidden"/><label>Nombre del tratamiento<input id="xfEditTreatmentName" maxlength="160" required=""/></label><div class="xofly-formgrid"><label>Sesiones totales<input id="xfEditTreatmentTotal" max="1000" min="1" required="" type="number"/></label><label>Sesiones realizadas<input id="xfEditTreatmentDone" min="0" required="" type="number"/></label><label>Precio total (MXN)<input id="xfEditTreatmentPrice" min="0" required="" step="0.01" type="number"/></label></div><label>Observaciones<textarea id="xfEditTreatmentNotes" maxlength="1000" rows="3"></textarea></label><button type="submit">Guardar tratamiento</button><button class="secondary" id="xfCancelTreatmentEdit" type="button">Cancelar</button></form></div>
 <div class="xofly-section"><h3>Seguimiento y pagos</h3><div id="treatmentRecords"></div></div><div class="xofly-section"><h3>Historial de abonos</h3><label>Filtrar por cliente o tratamiento<input id="xfPaymentSearch" placeholder="Buscar pagos..." type="search"/></label><div id="xfPaymentHistory"></div></div>
 </section>
-<section data-xf-page="finanzas" id="xfFinanceSection"><h2>📈 Reportes financieros</h2><p class="hint">Ingresos calculados a partir de los abonos registrados. Los saldos se calculan según el precio de cada tratamiento.</p><label>Periodo de ingresos<select id="xfReportPeriod"><option value="today">Hoy</option><option value="week">Últimos 7 días</option><option selected="" value="month">Este mes</option><option value="all">Todo el historial</option></select></label><div class="xf-report"><div><span>Ingresos del periodo</span><strong id="xfIncome">$0.00</strong></div><div><span>Saldos pendientes</span><strong id="xfOutstanding">$0.00</strong></div><div><span>Abonos del periodo</span><strong id="xfPaymentCount">0</strong></div></div><p class="hint" id="xfReportNote"></p></section><section data-xf-page="inicio" id="agendaDashboard"><h2>📊 Control de agenda</h2>
+<section data-xf-page="finanzas" id="xfFinanceSection"><h2>📈 Reportes financieros</h2><p class="hint">Ingresos calculados a partir de los abonos registrados. Los saldos se calculan según el precio de cada tratamiento.</p><label>Periodo de ingresos<select id="xfReportPeriod"><option value="today">Hoy</option><option value="week">Últimos 7 días</option><option selected="" value="month">Este mes</option><option value="all">Todo el historial</option></select></label><div class="xf-report"><div><span>Ingresos del periodo</span><strong id="xfIncome">$0.00</strong></div><div><span>Saldos pendientes</span><strong id="xfOutstanding">$0.00</strong></div><div><span>Abonos del periodo</span><strong id="xfPaymentCount">0</strong></div></div><p class="hint" id="xfReportNote"></p><div class="xofly-section"><h3>Respaldo de datos</h3><p class="hint">Descarga un respaldo JSON local de los registros visibles para la administradora. Guárdalo en una ubicación privada y protegida. No reemplaza las copias automáticas de base de datos de Supabase.</p><button id="xfExportBackup" type="button">Descargar respaldo JSON</button><p id="xfBackupStatus" role="status"></p></div></section><section data-xf-page="inicio" id="agendaDashboard"><h2>📊 Control de agenda</h2>
 <p class="hint">Resumen de citas y recordatorios manuales por WhatsApp. Los datos se consultan en Supabase.</p>
 <div class="agenda-summary">
 <div class="agenda-stat"><strong id="agendaToday">—</strong><span>Citas de hoy (activas)</span></div>
@@ -156,7 +157,7 @@ function xoflyRenderClients(){
  sel.value=previous;
  for(const c of xoflyClients.filter(c=>!lookup||c.full_name.toLocaleLowerCase('es').includes(lookup)||c.phone.includes(lookup)).slice(0,50)){
   const div=document.createElement('div');div.className='xofly-result';div.append(xoflyElement('strong',c.full_name+' · '+c.phone));
-  const count=xoflyTreatments.filter(t=>t.client_id===c.id).length;div.append(xoflyElement('p',count+' tratamiento(s) registrados'));
+  const count=xoflyTreatments.filter(t=>t.client_id===c.id).length;div.append(xoflyElement('p',count+' tratamiento(s) registrados'));const profile=document.createElement('button');profile.type='button';profile.textContent='Ver ficha completa';profile.onclick=()=>xfShowProfile(c.id);div.append(profile);
   if(c.notes)div.append(xoflyElement('small','Notas: '+c.notes));div.append(document.createElement('br'),xfButton('Editar expediente',()=>xfEditClient(c)));target.append(div)
  }
  if(!target.children.length)target.textContent='Sin clientes registrados.';
@@ -182,7 +183,7 @@ async function xoflyLoadRecords(){
    request('/rest/v1/xofly_treatments?select=*&order=created_at.desc&limit=1000'),
    request('/rest/v1/xofly_treatment_payments?select=*&order=created_at.desc&limit=1000')
   ]);
-  xoflyClients=c;xoflyTreatments=t;xoflyPayments=p;xoflyRenderClients();xoflyRenderTreatments();xfRenderPayments();xfRenderFinance();
+  xoflyClients=c;xoflyTreatments=t;xoflyPayments=p;xoflyRenderClients();xoflyRenderTreatments();xfRenderPayments();xfRenderFinance();if(xfProfileId)xfShowProfile(xfProfileId);
  }catch(err){$('clientResults').textContent='No se pudieron cargar expedientes: '+err.message;notice('Revisa si ejecutaste el SQL del módulo: '+err.message)}
 }
 $('clientLookup').oninput=xoflyRenderClients;
@@ -315,6 +316,81 @@ $('appointmentSearch').oninput=()=>{drawCalendar();drawAppointments()};
 $('appointmentFilter').onchange=()=>{drawCalendar();drawAppointments()};
 $('showAllAppointments').onclick=()=>{selectedAppointmentDay=null;drawCalendar();drawAppointments()};
 $('reloadAppointments').onclick=loadAppointments;
+
+let xfProfileId=null,xfRecoveryToken='';
+const xfProfileBox=$('xfClientProfile');
+function xfShowProfile(id){
+ const c=xoflyClients.find(x=>x.id===id);if(!c)return;
+ xfProfileId=id;xfProfileBox.hidden=false;
+ const target=$('xfClientProfileBody');target.replaceChildren();
+ const line=t=>{const p=document.createElement('p');p.textContent=t;target.append(p)};
+ const heading=t=>{const h=document.createElement('h4');h.textContent=t;target.append(h)};
+ heading(c.full_name);line('Teléfono: '+c.phone);if(c.notes)line('Observaciones: '+c.notes);
+ const treatments=xoflyTreatments.filter(t=>t.client_id===id);
+ heading('Tratamientos y pagos');
+ if(!treatments.length)line('Sin tratamientos registrados.');
+ for(const t of treatments){
+  const payments=xoflyPayments.filter(p=>p.treatment_id===t.id).sort((a,b)=>String(b.paid_on||b.created_at).localeCompare(String(a.paid_on||a.created_at)));
+  const paid=payments.reduce((sum,p)=>sum+Number(p.amount),0);
+  line(`${t.treatment_name}: sesiones ${t.sessions_done}/${t.sessions_total} · Total ${xoflyCurrency(t.total_price)} · Pagado ${xoflyCurrency(paid)} · Saldo ${xoflyCurrency(Number(t.total_price)-paid)}`);
+  for(const p of payments)line('   Abono '+String(p.paid_on||p.created_at||'').slice(0,10)+' · '+xoflyCurrency(p.amount));
+  const btn=document.createElement('button');btn.type='button';btn.textContent='Agendar próxima sesión';
+  btn.onclick=()=>{ $('manualName').value=c.full_name;$('manualPhone').value=c.phone;$('manualService').value=t.treatment_name;$('manualDate').value=agendaLocalDate();xoflyManualHours();document.querySelector('[data-xf-tab="agendar"]').click();$('manualDate').focus()};target.append(btn);
+ }
+ heading('Historial de citas');
+ const visits=appointmentsCache.filter(a=>xoflyPhone(a.client_phone)===xoflyPhone(c.phone)).sort((a,b)=>String(b.appointment_date+b.appointment_time).localeCompare(String(a.appointment_date+a.appointment_time)));
+ if(!visits.length)line('Sin citas encontradas para este teléfono.');
+ for(const a of visits.slice(0,80)){
+  line(`${a.appointment_date} ${appointmentTimeLabel(a.appointment_time)} · ${a.service} · ${appointmentStatusLabel[a.status]||a.status}`);
+  if(a.status==='confirmed'&&a.appointment_date>=agendaLocalDate()){
+   const btn=document.createElement('button');btn.type='button';btn.textContent='Recordatorio WhatsApp';btn.onclick=()=>agendaWhatsApp(a,'reminder');target.append(btn);
+  }
+ }
+ if(visits.length>80)line('Se muestran las 80 citas más recientes.');
+ xfProfileBox.scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('xfRecoverForm').onsubmit=async e=>{
+ e.preventDefault();const email=$('xfRecoverEmail').value.trim(),out=$('xfRecoverStatus');out.textContent='Enviando solicitud…';
+ try{
+  await request('/auth/v1/recover',{method:'POST',body:JSON.stringify({email}),headers:{},});
+  out.textContent='Si el correo está registrado, recibirás instrucciones. Revisa también spam.';
+ }catch(err){out.textContent='No se pudo solicitar la recuperación. Revisa la configuración de Auth y correo en Supabase.'}
+};
+// Supabase devuelve tokens de recuperación en el fragmento de URL.
+const xfHash=new URLSearchParams(location.hash.replace(/^#/,''));
+if(xfHash.get('type')==='recovery'&&xfHash.get('access_token')){
+ xfRecoveryToken=xfHash.get('access_token');$('xfNewPasswordBox').hidden=false;
+ history.replaceState(null,'',location.pathname+location.search);
+}
+$('xfNewPasswordForm').onsubmit=async e=>{
+ e.preventDefault();const password=$('xfNewPassword').value,out=$('xfNewPasswordStatus');
+ if(password.length<12){out.textContent='La contraseña debe tener al menos 12 caracteres.';return}
+ try{
+  const response=await fetch(url+'/auth/v1/user',{method:'PUT',headers:{apikey:key,Authorization:'Bearer '+xfRecoveryToken,'Content-Type':'application/json'},body:JSON.stringify({password})});
+  if(!response.ok)throw Error((await response.text()).slice(0,250));
+  xfRecoveryToken='';$('xfNewPasswordBox').hidden=true;out.textContent='Contraseña actualizada. Ya puedes iniciar sesión.';notice('Contraseña actualizada. Inicia sesión con tu nueva contraseña.');
+ }catch(err){out.textContent='No se pudo actualizar la contraseña: '+err.message}
+};
+$('xfExportBackup').onclick=async()=>{
+ const out=$('xfBackupStatus');out.textContent='Preparando respaldo…';
+ if(!token){out.textContent='Inicia sesión primero.';return}
+ try{
+  const tables=['xofly_appointments','xofly_clients','xofly_treatments','xofly_treatment_payments'];
+  const data={format:'xofly-backup-v1',exported_at:new Date().toISOString(),tables:{}};
+  for(const table of tables){
+   const rows=[];for(let offset=0;offset<100000;offset+=500){
+    const page=await request('/rest/v1/'+table+'?select=*&limit=500&offset='+offset);
+    rows.push(...page);if(page.length<500)break;
+   }data.tables[table]=rows;
+  }
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const link=document.createElement('a');link.href=URL.createObjectURL(blob);
+  link.download='xofly-respaldo-'+agendaLocalDate()+'.json';document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+  out.textContent='Respaldo descargado. Guárdalo cifrado y fuera de dispositivos compartidos.';
+ }catch(err){out.textContent='Error al exportar: '+err.message}
+};
+
 })();
 </script><script>
 (()=>{'use strict';
