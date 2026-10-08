@@ -1,4 +1,5 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración | Xofly Nails & Spa</title><script src="/config.js"></script><style>
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Administración | Xofly Nails &amp; Spa</title><script src="/config.js"></script><style>
 :root{--blue:#063c9d;--cyan:#08bfd7;--line:#dceaf5}*{box-sizing:border-box}body{font:16px system-ui,sans-serif;background:#f4fbff;color:#18345f;margin:0}.wrap{max-width:1040px;margin:24px auto;padding:18px}section{background:white;padding:24px;border:1px solid var(--line);border-radius:18px;margin:20px 0;box-shadow:0 5px 25px #063c9d0b}h1,h2{color:var(--blue)}label{display:block;margin:12px 0;font-weight:650}input,textarea,select{display:block;box-sizing:border-box;width:100%;padding:12px;margin-top:5px;border:1px solid #bcd5e6;border-radius:8px;font:inherit}input[type=checkbox]{display:inline;width:auto}button{padding:11px 16px;background:var(--blue);color:white;border:0;border-radius:9px;cursor:pointer;margin:5px 5px 5px 0;font-weight:650}.secondary{background:#64748b}.danger{background:#b91c1c}.item{border-top:1px solid #ddd;padding:12px 0}.item p{white-space:pre-wrap}small,.hint{color:#60718c}#msg{padding:10px;color:#9d3418;white-space:pre-wrap}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pill{display:inline-block;background:#e8faff;color:#075a85;border-radius:99px;padding:4px 9px;font-size:12px}.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.thumb{width:105px;max-height:100px;object-fit:contain;vertical-align:middle;border-radius:8px}.hidden{display:none!important}@media(max-width:700px){.row{grid-template-columns:1fr}section{padding:16px}}
 
 /* Calendario de citas */
@@ -24,45 +25,62 @@
 @media(max-width:700px){.xofly-formgrid{grid-template-columns:1fr}}
 
 .xf-pro-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.xf-pro-panel{background:#f5faff;border:1px solid #cfe2f5;padding:15px;border-radius:12px;margin:12px 0}.xf-pro-panel h3{margin-top:0}.xf-report{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.xf-report div{padding:14px;background:#f4f9ff;border:1px solid #dceaf5;border-radius:12px}.xf-report strong{display:block;font-size:1.3rem;color:#063c9d}.xf-payrow{padding:8px 0;border-top:1px solid #e4ecf4}.xf-pro-panel button{font-size:14px}@media(max-width:700px){.xf-report{grid-template-columns:1fr}}
-</style></head><body><div class="wrap"><h1>🦋 Panel Xofly Nails & Spa</h1><p>Administra servicios, paquetes, precios, imágenes y citas. Los cambios se guardan en Supabase.</p><a href="/">← Ver página pública</a><p id="msg" role="status"></p>
-<section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input type="email" id="email" required autocomplete="username"></label><label>Contraseña<input type="password" id="password" required autocomplete="current-password"></label><button>Entrar</button></form></section>
-<div id="panel" hidden><button id="logout" class="secondary">Cerrar sesión</button>
-<section><h2 id="formTitle">Agregar servicio o promoción</h2><p class="hint">Para que aparezca en la lista de precios, selecciona «Servicio» y asigna su categoría. Escribe las sesiones en el nombre, por ejemplo: «Limpieza facial profunda · 3 sesiones».</p><form id="editor"><div class="row"><label>Tipo<select id="kind"><option value="xofly_services">Servicio / precio</option><option value="xofly_promotions">Promoción</option></select></label><label>Categoría<select id="category"><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label></div><label>Nombre del tratamiento<input id="title" required maxlength="140" placeholder="Ej. Limpieza facial profunda · 3 sesiones"></label><label>Descripción / beneficios<textarea id="description" rows="3" maxlength="1000" placeholder="¿Para qué sirve el tratamiento?"></textarea></label><div class="row"><label>Precio en MXN (vacío = consultar)<input id="price" type="number" min="0" step="0.01"></label><label>URL HTTPS de imagen explicativa (opcional)<input id="image_url" type="url" placeholder="https://..."></label></div><label><input type="checkbox" id="active" checked> Visible al público</label><div class="toolbar"><button id="save">Guardar</button><button type="button" id="cancel" class="secondary">Cancelar edición</button></div></form></section>
-<section><h2>Servicios y precios</h2><label>Filtrar por categoría<select id="filter"><option value="">Todas</option><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label><div id="services"></div></section>
-<section><h2>Promociones</h2><div id="promos"></div></section>
-
-
-<section><h2>🗓️ Agendar cliente directamente</h2><p class="hint">Para citas solicitadas por WhatsApp, teléfono o en persona. Al guardar se registra como confirmada y ocupa el horario.</p>
+</style><style>
+:root{--xfnav:#0c2760}
+body{background:linear-gradient(135deg,#eef8ff 0%,#f8fcff 50%,#edf8fc 100%)}
+.wrap{max-width:1250px}
+#xfAdminHeader{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 20px}
+#xfAdminHeader h1{margin:0;font-size:clamp(1.5rem,3vw,2.1rem)}
+#xfAdminHeader p{margin:6px 0;color:#526786}
+#xfAdminNav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:15px 0 20px}
+#xfAdminNav button{margin:0;background:#fff;border:1px solid #dceaf5;color:#244673;min-height:65px;padding:10px 6px;box-shadow:0 3px 12px #063c9d0b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+#xfAdminNav button span{font-size:1.25rem}
+#xfAdminNav button[aria-selected=true]{background:#063c9d;color:#fff;border-color:#063c9d;box-shadow:0 8px 20px #063c9d25}
+#xfAdminNav button:focus-visible{outline:3px solid #08bfd7;outline-offset:2px}
+#xfPageTitle{font-size:1.2rem;color:#063c9d;margin:16px 0 0}
+#panel.xf-tabs-ready>section[data-xf-page]{display:none}
+#panel.xf-tabs-ready>section[data-xf-page].xf-active-page{display:block}
+#panel>section{margin:14px 0}
+#xfAdminNav .xf-nav-label{font-size:.85rem;font-weight:750}
+@media(max-width:760px){#xfAdminNav{grid-template-columns:repeat(3,minmax(0,1fr))}#xfAdminNav button{min-height:60px}}
+@media(max-width:420px){#xfAdminNav{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#xfAdminNav .xf-nav-label{font-size:.73rem}}
+</style></head><body><div class="wrap"><h1>🦋 Panel Xofly Nails &amp; Spa</h1><p>Administra servicios, paquetes, precios, imágenes y citas. Los cambios se guardan en Supabase.</p><a href="/">← Ver página pública</a><p id="msg" role="status"></p>
+<section id="login"><h2>Acceso del administrador</h2><form id="loginForm"><label>Correo<input autocomplete="username" id="email" required="" type="email"/></label><label>Contraseña<input autocomplete="current-password" id="password" required="" type="password"/></label><button>Entrar</button></form></section>
+<div hidden="" id="panel"><button class="secondary" id="logout">Cerrar sesión</button><nav aria-label="Secciones del panel administrativo" id="xfAdminNav" role="tablist"><button aria-selected="false" data-xf-tab="inicio" role="tab" type="button"><span>🏠</span><span class="xf-nav-label">Inicio</span></button><button aria-selected="false" data-xf-tab="calendario" role="tab" type="button"><span>📅</span><span class="xf-nav-label">Calendario</span></button><button aria-selected="false" data-xf-tab="agendar" role="tab" type="button"><span>🗓️</span><span class="xf-nav-label">Agendar</span></button><button aria-selected="false" data-xf-tab="clientes" role="tab" type="button"><span>👤</span><span class="xf-nav-label">Clientes</span></button><button aria-selected="false" data-xf-tab="finanzas" role="tab" type="button"><span>📊</span><span class="xf-nav-label">Finanzas</span></button><button aria-selected="false" data-xf-tab="catalogo" role="tab" type="button"><span>💅</span><span class="xf-nav-label">Catálogo</span></button></nav><h2 aria-live="polite" id="xfPageTitle"></h2>
+<section data-xf-page="catalogo" id="xfPageSection0"><h2 id="formTitle">Agregar servicio o promoción</h2><p class="hint">Para que aparezca en la lista de precios, selecciona «Servicio» y asigna su categoría. Escribe las sesiones en el nombre, por ejemplo: «Limpieza facial profunda · 3 sesiones».</p><form id="editor"><div class="row"><label>Tipo<select id="kind"><option value="xofly_services">Servicio / precio</option><option value="xofly_promotions">Promoción</option></select></label><label>Categoría<select id="category"><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label></div><label>Nombre del tratamiento<input id="title" maxlength="140" placeholder="Ej. Limpieza facial profunda · 3 sesiones" required=""/></label><label>Descripción / beneficios<textarea id="description" maxlength="1000" placeholder="¿Para qué sirve el tratamiento?" rows="3"></textarea></label><div class="row"><label>Precio en MXN (vacío = consultar)<input id="price" min="0" step="0.01" type="number"/></label><label>URL HTTPS de imagen explicativa (opcional)<input id="image_url" placeholder="https://..." type="url"/></label></div><label><input checked="" id="active" type="checkbox"/> Visible al público</label><div class="toolbar"><button id="save">Guardar</button><button class="secondary" id="cancel" type="button">Cancelar edición</button></div></form></section>
+<section data-xf-page="catalogo" id="xfPageSection1"><h2>Servicios y precios</h2><label>Filtrar por categoría<select id="filter"><option value="">Todas</option><option value="Facial y corporal">Facial y corporal</option><option value="Manos">Manos</option><option value="Podología">Podología</option><option value="General">General / otras</option></select></label><div id="services"></div></section>
+<section data-xf-page="catalogo" id="xfPageSection2"><h2>Promociones</h2><div id="promos"></div></section>
+<section data-xf-page="agendar" id="xfPageSection3"><h2>🗓️ Agendar cliente directamente</h2><p class="hint">Para citas solicitadas por WhatsApp, teléfono o en persona. Al guardar se registra como confirmada y ocupa el horario.</p>
 <form id="manualBooking"><div class="xofly-formgrid">
-<label>Nombre completo<input id="manualName" required maxlength="160" autocomplete="name"></label>
-<label>Teléfono (10 dígitos)<input id="manualPhone" required inputmode="tel" pattern="[0-9 +()-]{10,20}" maxlength="20"></label>
-<label>Tratamiento<input id="manualService" required maxlength="140" list="manualServiceOptions"></label>
-<label>Fecha<input id="manualDate" type="date" required></label>
-<label>Hora de llegada<select id="manualTime" required></select></label>
-<label>Notas de la cita (opcional)<input id="manualNotes" maxlength="500"></label>
+<label>Nombre completo<input autocomplete="name" id="manualName" maxlength="160" required=""/></label>
+<label>Teléfono (10 dígitos)<input id="manualPhone" inputmode="tel" maxlength="20" pattern="[0-9 +()-]{10,20}" required=""/></label>
+<label>Tratamiento<input id="manualService" list="manualServiceOptions" maxlength="140" required=""/></label>
+<label>Fecha<input id="manualDate" required="" type="date"/></label>
+<label>Hora de llegada<select id="manualTime" required=""></select></label>
+<label>Notas de la cita (opcional)<input id="manualNotes" maxlength="500"/></label>
 </div><datalist id="manualServiceOptions"></datalist>
 <button type="submit">Guardar cita confirmada</button><p id="manualBookingStatus" role="status"></p></form>
 </section>
-<section><h2>👤 Expedientes y tratamientos</h2>
+<section data-xf-page="clientes" id="xfPageSection4"><h2>👤 Expedientes y tratamientos</h2>
 <div class="xofly-section"><h3>Registrar cliente</h3><form id="clientForm"><div class="xofly-formgrid">
-<label>Nombre completo<input id="clientName" required maxlength="160"></label>
-<label>Teléfono<input id="clientPhone" required inputmode="tel" maxlength="20"></label></div>
-<label>Observaciones administrativas (opcional)<textarea id="clientNotes" rows="2" maxlength="1000"></textarea></label>
+<label>Nombre completo<input id="clientName" maxlength="160" required=""/></label>
+<label>Teléfono<input id="clientPhone" inputmode="tel" maxlength="20" required=""/></label></div>
+<label>Observaciones administrativas (opcional)<textarea id="clientNotes" maxlength="1000" rows="2"></textarea></label>
 <button>Guardar cliente</button></form></div>
-<div class="xofly-section"><h3>Buscar expediente</h3><label>Nombre o teléfono<input id="clientLookup" type="search" placeholder="Buscar cliente..."></label><div id="clientResults"></div></div>
+<div class="xofly-section"><h3>Buscar expediente</h3><label>Nombre o teléfono<input id="clientLookup" placeholder="Buscar cliente..." type="search"/></label><div id="clientResults"></div></div>
 <div class="xofly-section"><h3>Registrar tratamiento</h3><form id="treatmentForm">
-<label>Cliente<select id="treatmentClient" required></select></label>
-<div class="xofly-formgrid"><label>Tratamiento<input id="treatmentName" required maxlength="160"></label>
-<label>Sesiones totales<input id="treatmentTotal" type="number" min="1" max="1000" value="1" required></label>
-<label>Sesiones realizadas<input id="treatmentDone" type="number" min="0" value="0" required></label>
-<label>Precio total (MXN)<input id="treatmentPrice" type="number" min="0" step="0.01" value="0" required></label></div>
-<label>Observaciones del tratamiento<textarea id="treatmentNotes" rows="2" maxlength="1000"></textarea></label>
+<label>Cliente<select id="treatmentClient" required=""></select></label>
+<div class="xofly-formgrid"><label>Tratamiento<input id="treatmentName" maxlength="160" required=""/></label>
+<label>Sesiones totales<input id="treatmentTotal" max="1000" min="1" required="" type="number" value="1"/></label>
+<label>Sesiones realizadas<input id="treatmentDone" min="0" required="" type="number" value="0"/></label>
+<label>Precio total (MXN)<input id="treatmentPrice" min="0" required="" step="0.01" type="number" value="0"/></label></div>
+<label>Observaciones del tratamiento<textarea id="treatmentNotes" maxlength="1000" rows="2"></textarea></label>
 <button>Registrar tratamiento</button></form></div>
-<div class="xf-pro-panel" id="xfEditClientPanel" hidden><h3>Editar expediente</h3><form id="xfEditClientForm"><input type="hidden" id="xfEditClientId"><label>Nombre completo<input id="xfEditClientName" required maxlength="160"></label><label>Teléfono<input id="xfEditClientPhone" required maxlength="20"></label><label>Observaciones<textarea id="xfEditClientNotes" rows="3" maxlength="1000"></textarea></label><button type="submit">Guardar cambios</button><button type="button" class="secondary" id="xfCancelClientEdit">Cancelar</button></form></div>
-<div class="xf-pro-panel" id="xfEditTreatmentPanel" hidden><h3>Editar tratamiento</h3><form id="xfEditTreatmentForm"><input type="hidden" id="xfEditTreatmentId"><label>Nombre del tratamiento<input id="xfEditTreatmentName" required maxlength="160"></label><div class="xofly-formgrid"><label>Sesiones totales<input id="xfEditTreatmentTotal" type="number" min="1" max="1000" required></label><label>Sesiones realizadas<input id="xfEditTreatmentDone" type="number" min="0" required></label><label>Precio total (MXN)<input id="xfEditTreatmentPrice" type="number" min="0" step="0.01" required></label></div><label>Observaciones<textarea id="xfEditTreatmentNotes" rows="3" maxlength="1000"></textarea></label><button type="submit">Guardar tratamiento</button><button type="button" class="secondary" id="xfCancelTreatmentEdit">Cancelar</button></form></div>
-<div class="xofly-section"><h3>Seguimiento y pagos</h3><div id="treatmentRecords"></div></div><div class="xofly-section"><h3>Historial de abonos</h3><label>Filtrar por cliente o tratamiento<input id="xfPaymentSearch" type="search" placeholder="Buscar pagos..."></label><div id="xfPaymentHistory"></div></div>
+<div class="xf-pro-panel" hidden="" id="xfEditClientPanel"><h3>Editar expediente</h3><form id="xfEditClientForm"><input id="xfEditClientId" type="hidden"/><label>Nombre completo<input id="xfEditClientName" maxlength="160" required=""/></label><label>Teléfono<input id="xfEditClientPhone" maxlength="20" required=""/></label><label>Observaciones<textarea id="xfEditClientNotes" maxlength="1000" rows="3"></textarea></label><button type="submit">Guardar cambios</button><button class="secondary" id="xfCancelClientEdit" type="button">Cancelar</button></form></div>
+<div class="xf-pro-panel" hidden="" id="xfEditTreatmentPanel"><h3>Editar tratamiento</h3><form id="xfEditTreatmentForm"><input id="xfEditTreatmentId" type="hidden"/><label>Nombre del tratamiento<input id="xfEditTreatmentName" maxlength="160" required=""/></label><div class="xofly-formgrid"><label>Sesiones totales<input id="xfEditTreatmentTotal" max="1000" min="1" required="" type="number"/></label><label>Sesiones realizadas<input id="xfEditTreatmentDone" min="0" required="" type="number"/></label><label>Precio total (MXN)<input id="xfEditTreatmentPrice" min="0" required="" step="0.01" type="number"/></label></div><label>Observaciones<textarea id="xfEditTreatmentNotes" maxlength="1000" rows="3"></textarea></label><button type="submit">Guardar tratamiento</button><button class="secondary" id="xfCancelTreatmentEdit" type="button">Cancelar</button></form></div>
+<div class="xofly-section"><h3>Seguimiento y pagos</h3><div id="treatmentRecords"></div></div><div class="xofly-section"><h3>Historial de abonos</h3><label>Filtrar por cliente o tratamiento<input id="xfPaymentSearch" placeholder="Buscar pagos..." type="search"/></label><div id="xfPaymentHistory"></div></div>
 </section>
-<section id="xfFinanceSection"><h2>📈 Reportes financieros</h2><p class="hint">Ingresos calculados a partir de los abonos registrados. Los saldos se calculan según el precio de cada tratamiento.</p><label>Periodo de ingresos<select id="xfReportPeriod"><option value="today">Hoy</option><option value="week">Últimos 7 días</option><option value="month" selected>Este mes</option><option value="all">Todo el historial</option></select></label><div class="xf-report"><div><span>Ingresos del periodo</span><strong id="xfIncome">$0.00</strong></div><div><span>Saldos pendientes</span><strong id="xfOutstanding">$0.00</strong></div><div><span>Abonos del periodo</span><strong id="xfPaymentCount">0</strong></div></div><p id="xfReportNote" class="hint"></p></section><section id="agendaDashboard"><h2>📊 Control de agenda</h2>
+<section data-xf-page="finanzas" id="xfFinanceSection"><h2>📈 Reportes financieros</h2><p class="hint">Ingresos calculados a partir de los abonos registrados. Los saldos se calculan según el precio de cada tratamiento.</p><label>Periodo de ingresos<select id="xfReportPeriod"><option value="today">Hoy</option><option value="week">Últimos 7 días</option><option selected="" value="month">Este mes</option><option value="all">Todo el historial</option></select></label><div class="xf-report"><div><span>Ingresos del periodo</span><strong id="xfIncome">$0.00</strong></div><div><span>Saldos pendientes</span><strong id="xfOutstanding">$0.00</strong></div><div><span>Abonos del periodo</span><strong id="xfPaymentCount">0</strong></div></div><p class="hint" id="xfReportNote"></p></section><section data-xf-page="inicio" id="agendaDashboard"><h2>📊 Control de agenda</h2>
 <p class="hint">Resumen de citas y recordatorios manuales por WhatsApp. Los datos se consultan en Supabase.</p>
 <div class="agenda-summary">
 <div class="agenda-stat"><strong id="agendaToday">—</strong><span>Citas de hoy (activas)</span></div>
@@ -71,15 +89,15 @@
 <div class="agenda-stat"><strong id="agendaCancelled">—</strong><span>Canceladas</span></div>
 </div>
 <div class="agenda-layout">
-<div class="agenda-pane"><h3>Próximas citas · 7 días</h3><div id="agendaUpcoming" aria-live="polite"></div></div>
-<div class="agenda-pane"><h3>Horarios disponibles</h3><label>Consultar fecha<input type="date" id="agendaSlotDate"></label><div id="agendaSlots" aria-live="polite"></div><p class="hint">Espacios de llegada por hora; la duración del tratamiento puede variar.</p></div>
+<div class="agenda-pane"><h3>Próximas citas · 7 días</h3><div aria-live="polite" id="agendaUpcoming"></div></div>
+<div class="agenda-pane"><h3>Horarios disponibles</h3><label>Consultar fecha<input id="agendaSlotDate" type="date"/></label><div aria-live="polite" id="agendaSlots"></div><p class="hint">Espacios de llegada por hora; la duración del tratamiento puede variar.</p></div>
 </div>
-<div class="agenda-pane"><h3>Historial por cliente</h3><label>Buscar nombre o teléfono<input type="search" id="agendaClientSearch" placeholder="Escribe al menos 2 caracteres"></label><div id="agendaHistory"></div></div>
+<div class="agenda-pane"><h3>Historial por cliente</h3><label>Buscar nombre o teléfono<input id="agendaClientSearch" placeholder="Escribe al menos 2 caracteres" type="search"/></label><div id="agendaHistory"></div></div>
 </section>
-<section><h2>📅 Citas reservadas</h2><p>Las citas pendientes o confirmadas bloquean horarios. Al cancelar una cita, se libera el espacio si las políticas de la base de datos lo permiten.</p><div class="calendar-toolbar"><button type="button" id="prevMonth" aria-label="Mes anterior">← Anterior</button><h3 id="calendarMonth" aria-live="polite"></h3><button type="button" id="nextMonth" aria-label="Mes siguiente">Siguiente →</button></div>
-<div class="calendar-filters"><label>Buscar por cliente, teléfono o tratamiento<input id="appointmentSearch" type="search" placeholder="Buscar cita..."></label><label>Estado<select id="appointmentFilter"><option value="">Todos</option><option value="pending">Pendientes</option><option value="confirmed">Confirmadas</option><option value="cancelled">Canceladas</option></select></label></div>
+<section data-xf-page="calendario" id="xfPageSection7"><h2>📅 Citas reservadas</h2><p>Las citas pendientes o confirmadas bloquean horarios. Al cancelar una cita, se libera el espacio si las políticas de la base de datos lo permiten.</p><div class="calendar-toolbar"><button aria-label="Mes anterior" id="prevMonth" type="button">← Anterior</button><h3 aria-live="polite" id="calendarMonth"></h3><button aria-label="Mes siguiente" id="nextMonth" type="button">Siguiente →</button></div>
+<div class="calendar-filters"><label>Buscar por cliente, teléfono o tratamiento<input id="appointmentSearch" placeholder="Buscar cita..." type="search"/></label><label>Estado<select id="appointmentFilter"><option value="">Todos</option><option value="pending">Pendientes</option><option value="confirmed">Confirmadas</option><option value="cancelled">Canceladas</option></select></label></div>
 <div class="calendar-legend"><span><i class="calendar-dot pending"></i>Pendiente</span><span><i class="calendar-dot confirmed"></i>Confirmada</span><span><i class="calendar-dot cancelled"></i>Cancelada</span></div>
-<div id="appointmentCalendar" class="calendar-grid" aria-label="Calendario de citas"></div><h3 id="appointmentDayTitle">Citas</h3><div id="appointmentList"></div><button id="showAllAppointments" type="button" class="secondary">Ver todas las citas</button> <button id="reloadAppointments" type="button">Actualizar citas</button></section>
+<div aria-label="Calendario de citas" class="calendar-grid" id="appointmentCalendar"></div><h3 id="appointmentDayTitle">Citas</h3><div id="appointmentList"></div><button class="secondary" id="showAllAppointments" type="button">Ver todas las citas</button> <button id="reloadAppointments" type="button">Actualizar citas</button></section>
 </div></div><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),url=window.XOFLY_SUPABASE_URL,key=window.XOFLY_SUPABASE_ANON_KEY;let token='',editId=null,editKind=null,services=[];const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const notice=s=>$('msg').textContent=s;
 if(!url||!key){notice('Falta configurar config.js con los datos públicos de Supabase.');$('loginForm').querySelector('button').disabled=true;return}
@@ -297,5 +315,26 @@ $('appointmentSearch').oninput=()=>{drawCalendar();drawAppointments()};
 $('appointmentFilter').onchange=()=>{drawCalendar();drawAppointments()};
 $('showAllAppointments').onclick=()=>{selectedAppointmentDay=null;drawCalendar();drawAppointments()};
 $('reloadAppointments').onclick=loadAppointments;
+})();
+</script><script>
+(()=>{'use strict';
+const panel=document.getElementById('panel'),nav=document.getElementById('xfAdminNav'),title=document.getElementById('xfPageTitle');
+if(!panel||!nav)return;
+const names={inicio:'Resumen de agenda',calendario:'Calendario de citas',agendar:'Agendar cliente',clientes:'Expedientes y tratamientos',finanzas:'Reportes financieros',catalogo:'Servicios y promociones'};
+const tabs=[...nav.querySelectorAll('[data-xf-tab]')];
+const pages=[...panel.querySelectorAll(':scope > section[data-xf-page]')];
+function activate(name){
+ if(!names[name])name='inicio';
+ for(const page of pages)page.classList.toggle('xf-active-page',page.dataset.xfPage===name);
+ for(const tab of tabs)tab.setAttribute('aria-selected',String(tab.dataset.xfTab===name));
+ title.textContent=names[name];
+ if(name==='calendario'){
+  const reload=document.getElementById('reloadAppointments');
+  if(reload&&panel.hidden===false)reload.click();
+ }
+}
+for(const tab of tabs)tab.addEventListener('click',()=>activate(tab.dataset.xfTab));
+panel.classList.add('xf-tabs-ready');
+activate('inicio');
 })();
 </script></body></html>
