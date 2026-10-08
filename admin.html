@@ -107,7 +107,7 @@ function xoflyManualHours(){
  for(const h of hours){const time=String(h).padStart(2,'0')+':00';if(busy.has(time)||(date===agendaLocalDate()&&time<=current))continue;const opt=document.createElement('option');opt.value=time;opt.textContent=appointmentTimeLabel(time);sel.append(opt)}
  if(!sel.options.length){const opt=document.createElement('option');opt.value='';opt.textContent='Sin horarios disponibles';sel.append(opt)}
 }
-$('manualDate').min=agendaLocalDate();$('manualDate').value=agendaLocalDate();
+
 $('manualDate').onchange=xoflyManualHours;
 $('manualBooking').onsubmit=async e=>{
  e.preventDefault();const out=$('manualBookingStatus');out.textContent='';
@@ -267,6 +267,7 @@ function renderAgendaHistory(){
  for(const x of matches.slice(0,50)){const el=document.createElement('div');el.className='agenda-mini';el.textContent=`${dateTitle(x.appointment_date)} · ${x.client_name} · ${x.client_phone} · ${x.service} · ${appointmentStatusLabel[x.status]||x.status}`;target.append(el)}
  if(matches.length>50){const more=document.createElement('p');more.className='hint';more.textContent='Se muestran las 50 más recientes. Refina la búsqueda para encontrar otras.';target.append(more)}
 }
+$('manualDate').min=agendaLocalDate();$('manualDate').value=agendaLocalDate();
 $('agendaSlotDate').value=agendaLocalDate();
 $('agendaSlotDate').onchange=renderAgendaSlots;
 $('agendaClientSearch').oninput=renderAgendaHistory;
