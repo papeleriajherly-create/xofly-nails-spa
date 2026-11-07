@@ -1,0 +1,17 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {validarSolicitud,crearSolicitud,enviarORecuperar} from './booking-client.mjs';
+const payload={fecha:'2026-12-15',hora:'16:00',nombre:'PRUEBA TECNICA',telefono:'0000000000',servicio:'Servicio ficticio',notas:''};
+const id='bc95c1a3-6dbc-444f-aac4-4a36c591ca73';
+const token='fictitious-turnstile-token';
+const fake=(steps,record)=>async(url,opts)=>{record.push({url,body:JSON.parse(opts.body)});const step=steps.shift();if(step instanceof Error)throw step;return {ok:step.ok,status:step.status||200,json:async()=>step.body};};
+test('validación de solicitud correcta',()=>assert.equal(validarSolicitud(payload).hora,'16:00'));
+test('rechaza domingo',()=>assert.throws(()=>validarSolicitud({...payload,fecha:'2026-12-13'})));
+test('rechaza horas fuera de jornada',()=>assert.throws(()=>validarSolicitud({...payload,hora:'18:00'})));
+test('rechaza fecha imposible',()=>assert.throws(()=>validarSolicitud({...payload,fecha:'2026-02-30'})));
+test('rechaza teléfono corto',()=>assert.throws(()=>validarSolicitud({...payload,telefono:'123'})));
+test('requiere UUID v4 y token',()=>{assert.throws(()=>crearSolicitud(payload,'wrong',token));assert.throws(()=>crearSolicitud(payload,id,''))});
+test('creación única',async()=>{const req=[];const r=await enviarORecuperar({solicitud:payload,requestId:id,turnstileToken:token,fetchImpl:fake([{ok:true,body:{ok:true,id:'comprobante-1'}}],req)});assert.equal(r.estado,'creada');assert.equal(req.length,1);assert.equal(req[0].body.requestId,id)});
+test('pérdida de red: recuperación sin segundo captcha',async()=>{const req=[];const r=await enviarORecuperar({solicitud:payload,requestId:id,turnstileToken:token,fetchImpl:fake([new TypeError('network'),{ok:true,body:{ok:true,id:'comprobante-1'}}],req)});assert.equal(r.estado,'recuperada');assert.equal(req.length,2);assert.equal(req[1].body.requestId,id);assert.equal(req[1].body.op,'recover');assert.equal('turnstileToken' in req[1].body,false)});
+test('recuperación fallida devuelve estado incierto',async()=>{const req=[];const r=await enviarORecuperar({solicitud:payload,requestId:id,turnstileToken:token,fetchImpl:fake([new TypeError('network'),new TypeError('network')],req)});assert.equal(r.estado,'incierta');assert.equal(req.length,2)});
+test('HTTP rechazado no realiza un nuevo POST',async()=>{const req=[];await assert.rejects(()=>enviarORecuperar({solicitud:payload,requestId:id,turnstileToken:token,fetchImpl:fake([{ok:false,status:403,body:{ok:false}}],req)}));assert.equal(req.length,1)});
