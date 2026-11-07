@@ -1,0 +1,24 @@
+name: Xofly - respaldo cifrado a Drive (manual, pendiente de aprobacion)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    name: Exportacion cifrada de laboratorio operativo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    environment: xofly-backups
+    steps:
+      - name: Checkout revisado
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Exportar y enviar cifrado a Drive
+        env:
+          XOFLY_DB_PASSWORD: ${{ secrets.XOFLY_DB_PASSWORD }}
+          XOFLY_AGE_RECIPIENT: ${{ secrets.XOFLY_AGE_RECIPIENT }}
+          XOFLY_RCLONE_CONFIG_B64: ${{ secrets.XOFLY_RCLONE_CONFIG_B64 }}
+        run: bash scripts/xofly/backup-to-drive.sh
