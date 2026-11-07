@@ -1,0 +1,27 @@
+name: Xofly - respaldo cifrado (manual, sin activar)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: xofly-backups
+    steps:
+      - name: Checkout de la version revisada
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Exportar, cifrar y verificar subida a R2
+        env:
+          XOFLY_DB_PASSWORD: ${{ secrets.XOFLY_DB_PASSWORD }}
+          XOFLY_R2_ENDPOINT: ${{ secrets.XOFLY_R2_ENDPOINT }}
+          XOFLY_R2_BUCKET: ${{ secrets.XOFLY_R2_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.XOFLY_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.XOFLY_R2_SECRET_ACCESS_KEY }}
+          XOFLY_AGE_RECIPIENT: ${{ secrets.XOFLY_AGE_RECIPIENT }}
+          AWS_DEFAULT_REGION: auto
+        run: bash scripts/xofly/backup-to-r2.sh
