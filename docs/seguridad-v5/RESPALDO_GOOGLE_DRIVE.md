@@ -3,11 +3,11 @@
 ## Estado
 - Aislamiento: rama `dev/xofly-google-drive-backups-lab`, sin cambios a `main`, producción Vercel o Supabase.
 - Solo `workflow_dispatch`: **sin horario diario y sin envío real**.
-- Google Drive conectado a ChatGPT actualmente corresponde a `onovas01@gmail.com`. **No se autorizó aún que los datos de Xofly se almacenen ahí**. No se creó ninguna carpeta.
+- **Cuenta elegida expresamente por el propietario: `papeleriajherly@gmail.com`**. La conexión de Google Drive disponible en esta sesión continúa autenticada como `onovas01@gmail.com`; por privacidad, **no se ha creado ninguna carpeta ni subido datos a esa cuenta distinta**. Es necesario conectar Google Drive con `papeleriajherly@gmail.com` antes de crear el destino.
 - Esta propuesta necesita escoger y autorizar la cuenta propietaria de la carpeta. Idealmente una cuenta del negocio controlada por la clienta, con acuerdo de acceso/retención. Si se usa cuenta del desarrollador, formalizarlo.
 
 ## Preparación pendiente
-1. Definir cuenta Google Drive correcta y verificar que tenga espacio suficiente. No hay verificación de cuota disponible mediante la conexión actual.
+1. Cuenta de destino definida: `papeleriajherly@gmail.com`. Verificar acceso autenticado exactamente con ese correo, propiedad, privacidad y espacio disponible antes de crear carpeta.
 2. Crear carpeta exclusiva no compartida `Xofly - Respaldos cifrados`; confirmar privacidad y recopilar ID de carpeta.
 3. Configurar rclone Drive OAuth en un entorno seguro mediante flujo de autorización del titular. Configurar remoto `[xoflydrive]` con `type = drive`, `token` OAuth y `root_folder_id = <folder id>`. El acceso OAuth es una credencial sensible: guardar el archivo rclone.conf codificado en base64 **como GitHub Environment Secret**, no en el repositorio, comentarios ni conversaciones. El alcance OAuth se debe limitar cuanto permita el proveedor; verificar los permisos efectivos.
 4. Crear clave age con `age-keygen`; conservar **clave privada fuera de GitHub, Drive y la máquina efímera de respaldo**, con una segunda copia segura y acceso de la persona responsable. Usar únicamente la clave pública `age1...` para cifrar en CI.
